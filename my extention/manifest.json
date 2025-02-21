@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "AI Summary & TTS",
+    "version": "1.1",
+    "description": "Summarizes web content and reads it aloud when focus is lost. Blocks distractions.",
+    "permissions": ["activeTab", "tts", "tabs", "storage", "scripting","declarativeNetRequest"],
+    "host_permissions": ["<all_urls>", "https://www.google-analytics.com/"],
+    "background": {
+      "service_worker": "background.js"
+  },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"],
+        "css": ["styles.css"]
+      }
+    ],
+    "action": {
+      "default_icon": "icon.png"
+    }
+}
