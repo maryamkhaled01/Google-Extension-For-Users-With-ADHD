@@ -41,114 +41,120 @@ chrome.runtime.onMessage.addListener(async(message, sender,sendResponse) => {
     return true;
   }
 
-
-    const { isExtensionActive } = await chrome.storage.session.get(["isExtensionActive"]);
+  //correction
+   const { isExtensionActive } = await chrome.storage.session.get(["isExtensionActive"]);
+//    chrome.storage.session.get(["isExtensionActive"]).then((result) => {
+    // const isExtensionActive = result.isExtensionActive ?? false;
     console.log("🔍 Checking extension state before action:", isExtensionActive);
 
     if (!isExtensionActive) {
-      console.log("🚫 Extension is turned off. Ignoring action.");
-      sendResponse({ status: "ignored" });
-      return true;
-  }
-  if (message.action === "inactive") {
-      console.log("User inactive");
-      focusTracker++;
-      chrome.storage.session.set({ focusTracker: focusTracker });
+        console.log("🚫 Extension is turned off. Ignoring action.");
+        sendResponse({ status: "ignored" });
+        return true;
+    }
 
-      
-      console.log("Focus Tracker count: ",focusTracker)
-      if(focusTracker < 5){
-        chrome.tts.speak("You have been inactive. Time to refocus!", { rate: 1.0, pitch: 1.0, volume: 1.0 });
-
-      }
-      else {
-        focusTracker = 0;
-        chrome.storage.session.set({ focusTracker: 0 });
-        chrome.runtime.onStartup.addListener(() => {
-          console.log("🔄 Extension started. Waiting for active tab...");
-      });
-      
-      chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-          if (message.action === "inactive") {
-              console.log("📢 User inactive, fetching nearest sentence...");
-              findActiveTabAndExecute();
-          }
-      });
-      
-      function findActiveTabAndExecute() {
-          chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-              if (!tabs || tabs.length === 0 || !tabs[0].id) {
-                  console.warn("⚠️ No active tab found. Retrying in 1 second...");
-                  setTimeout(findActiveTabAndExecute, 1000); // Retry after 1 second
-                  return;
-              }
-              executeTTS(tabs[0].id);
-          });
-      }
-      
-      function executeTTS(tabId) {
-          chrome.scripting.executeScript({
-              target: { tabId: tabId },
-              files: ["content.js"]
-          }, () => {
-              if (chrome.runtime.lastError) {
-                  console.error("❌ Error injecting content script:", chrome.runtime.lastError);
-                  return;
-              }
-      
-              console.log("✅ Content script injected successfully.");
-              chrome.storage.session.get(["isExtensionActive"]).then((data) => {
-                if (!data.isExtensionActive) {
-                    console.log("🚫 Extension is turned OFF. Skipping nearest sentence detection.");
+    // Continue processing if the extension is active...
+    if (message.action === "inactive") {
+        console.log("User inactive");
+        focusTracker++;
+        chrome.storage.session.set({ focusTracker: focusTracker });
+    
+        
+        console.log("Focus Tracker count: ",focusTracker)
+        if(focusTracker < 5){
+          chrome.tts.speak("You have been inactive. Time to refocus!", { rate: 1.0, pitch: 1.0, volume: 1.0 });
+    
+        }
+        else {
+          focusTracker = 0;
+          chrome.storage.session.set({ focusTracker: 0 });
+          chrome.runtime.onStartup.addListener(() => {
+            console.log("🔄 Extension started. Waiting for active tab...");
+        });
+        
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.action === "inactive") {
+                console.log("📢 User inactive, fetching nearest sentence...");
+                findActiveTabAndExecute();
+            }
+        });
+        
+        function findActiveTabAndExecute() {
+            chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+                if (!tabs || tabs.length === 0 || !tabs[0].id) {
+                    console.warn("⚠️ No active tab found. Retrying in 1 second...");
+                    setTimeout(findActiveTabAndExecute, 1000); // Retry after 1 second
                     return;
                 }
-            
-                chrome.tabs.sendMessage(tabId, { action: "getNearestSentence" }, (response) => {
-                    if (chrome.runtime.lastError) {
-                        console.error("❌ Error sending message:", chrome.runtime.lastError);
-                        return;
-                    }
-            
-                    if (response && response.text) {
-                        console.log("🔊 Speaking nearest sentence:", response.text);
-                        chrome.tts.speak(response.text, { rate: 1.0, pitch: 1.0, volume: 1.0 });
-                    } else {
-                        console.error("❌ Failed to get nearest sentence.");
-                    }
-                });
+                executeTTS(tabs[0].id);
             });
-            
-          });
-      }
-      
-      
-      
-      
-        //    chrome.runtime.sendMessage({ action: "getNearestSentence" }, (response) => {
-        //     if (chrome.runtime.lastError) {
-        //       console.error("❌ Error sending message:", chrome.runtime.lastError);
-        //       return;
-        //   }
-        //     if (response && response.text) {
-        //       console.log("🔊 Speaking nearest sentence:", response.text);
-        //       chrome.tts.speak(response.text, { rate: 1.0, pitch: 1.0, volume: 1.0 });
-        //     } else {
-        //       console.error("Failed to get nearest sentence.");
-        //   }
-        //  });
-        //       focusTracker = 0;
-        //     chrome.storage.session.set({ focusTracker: 0 });
-
-      }
-
-  } else if (message.action === "focusLost") {
-      console.log("Focus lost");
-      chrome.tts.speak("Focus lost! Stay on task.", { rate: 1.0, pitch: 1.0, volume: 1.0 });
-  }
-
-  sendResponse({ status: "processed" });
-    return true;
+        }
+        
+        function executeTTS(tabId) {
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                files: ["content.js"]
+            }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error("❌ Error injecting content script:", chrome.runtime.lastError);
+                    return;
+                }
+        
+                console.log("✅ Content script injected successfully.");
+                chrome.storage.session.get(["isExtensionActive"]).then((data) => {
+                  if (!data.isExtensionActive) {
+                      console.log("🚫 Extension is turned OFF. Skipping nearest sentence detection.");
+                      return;
+                  }
+              
+                  chrome.tabs.sendMessage(tabId, { action: "getNearestSentence" }, (response) => {
+                      if (chrome.runtime.lastError) {
+                          console.error("❌ Error sending message:", chrome.runtime.lastError);
+                          return;
+                      }
+              
+                      if (response && response.text) {
+                          console.log("🔊 Speaking nearest sentence:", response.text);
+                          chrome.tts.speak(response.text, { rate: 1.0, pitch: 1.0, volume: 1.0 });
+                      } else {
+                          console.error("❌ Failed to get nearest sentence.");
+                      }
+                  });
+              });
+              
+            });
+        }
+        
+        
+        
+        
+          //    chrome.runtime.sendMessage({ action: "getNearestSentence" }, (response) => {
+          //     if (chrome.runtime.lastError) {
+          //       console.error("❌ Error sending message:", chrome.runtime.lastError);
+          //       return;
+          //   }
+          //     if (response && response.text) {
+          //       console.log("🔊 Speaking nearest sentence:", response.text);
+          //       chrome.tts.speak(response.text, { rate: 1.0, pitch: 1.0, volume: 1.0 });
+          //     } else {
+          //       console.error("Failed to get nearest sentence.");
+          //   }
+          //  });
+          //       focusTracker = 0;
+          //     chrome.storage.session.set({ focusTracker: 0 });
+    
+        }
+    
+    } else if (message.action === "focusLost") {
+        console.log("Focus lost");
+        chrome.tts.speak("Focus lost! Stay on task.", { rate: 1.0, pitch: 1.0, volume: 1.0 });
+    }
+    
+    sendResponse({ status: "processed" });
+      return true;
 });
+
+
 
 
 //TTS nearest sentence:

@@ -1,3 +1,43 @@
+document.addEventListener("DOMContentLoaded",async ()=>{
+    const toggleSwitch = document.getElementById("flexSwitchCheckDefault")
+
+    
+const { isExtensionActive } = await chrome.storage.session.get(["isExtensionActive"]);
+toggleSwitch.checked = isExtensionActive ?? false;
+
+toggleSwitch.addEventListener("change", async () => {
+    const isActive = toggleSwitch.checked;
+
+    // Save the new state
+    await chrome.storage.session.set({ isExtensionActive: isActive });
+
+    // Notify background script about the toggle change
+    await chrome.runtime.sendMessage({ action: "toggleExtension", state: isActive });
+
+    console.log("🔄 Extension toggled:", isActive);
+});
+
+
+})
+
+
+
+// Listen for toggle switch changes
+//correction
+// toggleSwitch.addEventListener("change", async () => {
+//     const isActive = toggleSwitch.checked;
+
+//     // Save the new state
+//     await chrome.storage.session.set({ isExtensionActive: isActive });
+
+//     // Notify background script about the toggle change
+//     await chrome.runtime.sendMessage({ action: "toggleExtension", state: isActive });
+
+//     console.log("🔄 Extension toggled:", isActive);
+// });
+
+
+
 function updateSummary() {
     chrome.storage.local.get("summary", (data) => {
         console.log("Storage Data Retrieved:", data); // Debugging log

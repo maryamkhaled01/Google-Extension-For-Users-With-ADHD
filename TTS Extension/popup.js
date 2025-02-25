@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const resetButton = document.getElementById("resetButton");
     const contentDisplay = document.getElementById("contentDisplay");
     const speakContentButton = document.getElementById("speakContentButton");
-    const toggleSwitch = document.getElementById("flexSwitchCheckDefault")
+    // const toggleSwitch = document.getElementById("flexSwitchCheckDefault")
 
 
    // Load the saved toggle state and update UI
