@@ -3,11 +3,12 @@
   "name": "Focus Booster & TTS",
   "version": "1.1",
   "description": "A Chrome extension that detects inactivity and helps regain focus with challenges and TTS.",
-  "permissions": ["tts", "idle", "storage","sidePanel", "windows"],
+  "permissions": ["tts", "idle", "storage","sidePanel", "windows","activeTab","scripting"],
   "background": {
       "service_worker": "background.js",
       "type": "module"
-  }
+  },
+  "host_permissions": ["<all_urls>"]
   ,"web_accessible_resources": [
         {
             "resources": ["datasets/*.csv"],
@@ -15,6 +16,14 @@
         }
     ]
   ,
+  "content_scripts": [
+    {
+        "matches": ["<all_urls>"],
+        "js": ["content.js"],
+        "run_at": "document_idle"
+    }
+ ]
+ ,
   "action": {
       "default_icon": "icon.png"
       },

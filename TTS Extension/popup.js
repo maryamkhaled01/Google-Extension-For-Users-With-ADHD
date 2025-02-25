@@ -6,7 +6,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     const resetButton = document.getElementById("resetButton");
     const contentDisplay = document.getElementById("contentDisplay");
     const speakContentButton = document.getElementById("speakContentButton");
+    const toggleSwitch = document.getElementById("flexSwitchCheckDefault")
 
+
+   // Load the saved toggle state and update UI
+   const { isExtensionActive } = await chrome.storage.session.get(["isExtensionActive"]);
+   toggleSwitch.checked = isExtensionActive ?? false;
+
+   // Listen for toggle switch changes
+   toggleSwitch.addEventListener("change", async () => {
+       const isActive = toggleSwitch.checked;
+
+       // Save the new state
+       await chrome.storage.session.set({ isExtensionActive: isActive });
+
+       // Notify background script about the toggle change
+       await chrome.runtime.sendMessage({ action: "toggleExtension", state: isActive });
+
+       console.log("🔄 Extension toggled:", isActive);
+   });
+   
     async function loadCSV(file) {
         const response = await fetch(file);
         const text = await response.text();
