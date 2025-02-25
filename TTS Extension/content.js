@@ -76,6 +76,91 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
+async function loadCSV(file) {
+    const response = await fetch(file);
+    const text = await response.text();
+    return text.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+}
+
+async function getRandomContent() {
+    // Load datasets
+    const Joke = await loadCSV(chrome.runtime.getURL("datasets/shortjokes.csv"));
+    const Riddle = await loadCSV(chrome.runtime.getURL("datasets/riddles.csv"));
+    const Exercise = await loadCSV(chrome.runtime.getURL("datasets/exercises.csv"));
+    
+    const categories = {
+        Equation: Array.from({ length: 5 }, () => getRandomEquation()), // Generate 5 random equations
+        Exercise,
+        Riddle,
+        Joke
+    };
+
+    const keys = Object.keys(categories);
+    const category = keys[Math.floor(Math.random() * keys.length)];
+    const items = categories[category];
+    const content = items[Math.floor(Math.random() * items.length)];
+
+    return { category, content };
+}
+
+async function showFocusPopup() {
+    console.log("📢 Attempting to open focus popup...");
+
+    const { category, content } = await getRandomContent();
+
+    const popup = window.open("", "Focus Reminder", "width=400,height=300");
+    if (!popup || popup.closed || typeof popup.closed === "undefined") {
+        console.error("❌ Popup blocked by Chrome. Ensure popups are allowed.");
+        alert("⚠️ Chrome blocked the popup. Please allow popups for this extension.");
+
+        return;
+    }
+    
+    
+        popup.document.write(`
+            <html>
+            <head>
+                <title>Focus Reminder</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+                    h2 { color: red; }
+                    p { font-size: 18px; }
+                    button { padding: 10px; margin-top: 20px; font-size: 16px; }
+                </style>
+            </head>
+            <body>
+                <h2>Time to Refocus! 🚀</h2>
+                <p><strong>${category}</strong>: ${content}</p>
+                <button onclick="window.close()">Got It!</button>
+            </body>
+            </html>
+        `);
+        console.log("✅ Popup displayed successfully.");
+
+    
+}
+
+// Listen for messages from background.js
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("📩 Message received in content.js:", message);
+
+    if (message.action === "focusWarning") {
+        console.log("✅ Popup function executed");
+        showFocusPopup();
+        sendResponse({ status: "popup displayed" });
+    } else {
+        console.error("❌ Unrecognized action:", message.action);
+    }
+
+    return true; // Ensures async responses are handled
+});
+
+
+
+
+
+
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "getNearestSentence") {

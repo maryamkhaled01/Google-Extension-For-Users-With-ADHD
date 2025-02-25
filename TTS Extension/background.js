@@ -61,9 +61,38 @@ chrome.runtime.onMessage.addListener(async(message, sender,sendResponse) => {
     
         
         console.log("Focus Tracker count: ",focusTracker)
-        if(focusTracker < 5){
+        if(focusTracker < 3){
           chrome.tts.speak("You have been inactive. Time to refocus!", { rate: 1.0, pitch: 1.0, volume: 1.0 });
     
+        }
+        else if(focusTracker < 5){
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs.length === 0) {
+                    console.error("❌ No active tab found.");
+                    return;
+                }
+            
+                chrome.scripting.executeScript({
+                    target: { tabId: tabs[0].id },
+                    files: ["content.js"]
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error("❌ Error injecting content script:", chrome.runtime.lastError);
+                        return;
+                    }
+                    console.log("✅ Content script injected successfully.");
+            
+                    // Now send the focus warning message
+                    chrome.tabs.sendMessage(tabs[0].id, { action: "focusWarning" }, (response) => {
+                        if (chrome.runtime.lastError) {
+                            console.error("❌ Error sending message:", chrome.runtime.lastError);
+                            return;
+                        }
+                        console.log("✅ Focus warning message sent:", response);
+                    });
+                });
+            });
+            
         }
         else {
           focusTracker = 0;
