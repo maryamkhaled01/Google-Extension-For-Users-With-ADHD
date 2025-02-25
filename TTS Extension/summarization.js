@@ -113,3 +113,5 @@ async function summarizeText(text) {
     chrome.runtime.sendMessage({ summary: summaryList });
 })();
 
+
+
