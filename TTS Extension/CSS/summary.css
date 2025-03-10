@@ -85,7 +85,7 @@ button:hover {
 
 /* 🌀 Animated Text */
 .animated-text {
-    animation: textWiggle s infinite alternate ease-in-out;
+    animation: textWiggle 7s infinite alternate ease-in-out;
 }
 
 @keyframes textWiggle {

@@ -23,6 +23,11 @@ chrome.idle.onStateChanged.addListener((state) => {
             width: 800,
             height: 600
         });
+        chrome.tts.speak("fun time", {
+            rate: 1.0,
+            pitch: 2.0,
+            volume: 1.0
+        });
     }
 });
 
