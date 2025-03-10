@@ -20,8 +20,8 @@ chrome.idle.onStateChanged.addListener((state) => {
         chrome.windows.create({
             url: "popup.html",
             type: "popup",
-            width: 400,
-            height: 300
+            width: 800,
+            height: 600
         });
     }
 });

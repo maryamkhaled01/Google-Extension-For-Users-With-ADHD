@@ -7,10 +7,14 @@
         
         <!-- Use local Bootstrap CSS -->
         <link rel="stylesheet" href="CSS/bootstrap.min.css">
-        <link rel="stylesheet" href="CSS/main.css">
+        <!-- Link External CSS File -->
+        <link rel="stylesheet" href="./CSS/summary.css">
+
+        <!-- Google Font for ADHD-Friendly Readability -->
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
     </head>
 
-<body class="container text-center vh-100">
+<!-- <body class="container text-center vh-100">
     <h1>Focus Booster</h1>
     <div class="container p-3">
         <p id="contentDisplay" class="mb-2 p-2 bg-black rounded-3 text-white" style="--bs-bg-opacity: .3;">Loading...</p>
@@ -30,9 +34,41 @@
 
     <button id="togglePanelButton" class="btn btn-primary">Switch Side Panel</button>
 
+    Use local Bootstrap JS -->
+    <!-- <script src="bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="popup.js" type="module"></script>
+    <script src="sidepanel.js"></script> 
+</body> -->
+
+<body class="container vh-100">
+    <canvas id="starCanvas"></canvas>
+  
+
+    <div class="container mt-5 pt-3 w-100 mx-auto align-items-center text-center">
+        <h1>✨ Focus Booster ✨</h1>
+        <p id="contentDisplay" class="animated-text">Loading...</p>
+        <button id="speakContentButton" type="button" class="btn btn-outline-dark mb-4">🔊 Read Aloud</button>
+
+        <form>
+            <div class="form-group">
+                <textarea id="textInput" placeholder="Enter text here..." class="form-control" rows="3"></textarea>
+            </div>
+        </form>
+      
+        <div>
+            <button id="playButton" type="button" class="btn btn-success mt-4">▶️ Play</button>
+            <button id="resetButton" type="button" class="btn btn-danger mt-4">⏹️ Reset</button>
+        </div>
+    </div>
+
+    <button id="togglePanelButton" class="btn rounded-4 btn-primary mt-3">🔄 Switch Side Panel</button>
+
     <!-- Use local Bootstrap JS -->
     <script src="bootstrap/bootstrap.bundle.min.js"></script>
     <script src="popup.js" type="module"></script>
     <script src="sidepanel.js"></script> 
+    <script src = "stars.js"></script>
 </body>
+</html>
+
 </html>
