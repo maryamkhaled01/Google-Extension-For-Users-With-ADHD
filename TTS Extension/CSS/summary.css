@@ -117,9 +117,6 @@ h2, button {
     padding: 0;
 }
 
-#contentDisplay:hover #contentDisplay{
-    margin-block: 2rem;/* Equivalent to Bootstrap mt-3 */
-}
 
 /* Ensure the canvas is transparent */
 #starCanvas {
