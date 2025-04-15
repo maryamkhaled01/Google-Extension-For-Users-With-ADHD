@@ -32,6 +32,9 @@ const colorPalette = [
                 li.style.marginBottom = "5px"; // Adds spacing
                 // Add transition for smooth changes
                 li.style.transition = "font-size 3s ease-in-out, color 3s ease-in-out";
+                li.style.listStyleType = "disc"; // Ensure bullet is shown
+                li.style.marginLeft = "20px";    // Optional: indent for better look
+
 
                 ul.appendChild(li);
             });
