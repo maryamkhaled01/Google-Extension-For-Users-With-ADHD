@@ -46,6 +46,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.sidePanel.setOptions({
+        enabled: true,
+        path: "summarysidepanel.html"
+    });
+});
+
 chrome.action.onClicked.addListener(() => {
     chrome.windows.getCurrent((window) => {
         if (window) {
@@ -59,23 +66,23 @@ chrome.action.onClicked.addListener(() => {
     });
 });
 
-chrome.idle.setDetectionInterval(200);  // 15 seconds
+// chrome.idle.setDetectionInterval(15);  // 15 seconds
 
-chrome.idle.onStateChanged.addListener((state) => {
-    if (state === "idle" || state === "locked") {
-        chrome.windows.create({
-            url: "popup.html",
-            type: "popup",
-            width: 800,
-            height: 600
-        });
-        chrome.tts.speak("fun time", {
-            rate: 1.0,
-            pitch: 2.0,
-            volume: 1.0
-        });
-    }
-});
+// chrome.idle.onStateChanged.addListener((state) => {
+//     if (state === "idle" || state === "locked") {
+//         chrome.windows.create({
+//             url: "popup.html",
+//             type: "popup",
+//             width: 800,
+//             height: 600
+//         });
+//         chrome.tts.speak("fun time", {
+//             rate: 1.0,
+//             pitch: 2.0,
+//             volume: 1.0
+//         });
+//     }
+// });
 
 // Listen for messages from summarization script and store the summary
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -104,8 +111,6 @@ chrome.runtime.onInstalled.addListener(() => {
     console.log("🆕 Extension installed, clearing summary...");
     // chrome.storage.local.set({ summary: ["📄 No page summarized yet."] });
 });
-
-
 
 
 // // Function to inject summarization script
@@ -174,3 +179,87 @@ chrome.runtime.onInstalled.addListener(() => {
 //     tabControllers[tabId] = new AbortController();
 // }
 
+/// gaze track
+
+function triggerPopupOnce() {
+
+    popupCooldown = true;
+
+    chrome.windows.create({
+        url: "popup.html",
+        type: "popup",
+        width: 800,
+        height: 600
+    });
+
+    chrome.tts.speak("fun time", {
+        rate: 1.0,
+        pitch: 2.0,
+        volume: 1.0
+    });
+}
+
+
+function notifyUser(message) {
+    chrome.notifications.create({
+        type: "basic",
+        iconUrl: chrome.runtime.getURL("icon.png"),
+        title: "⚠️ Focus Alert",
+        message: message
+    }, (notificationId) => {
+        if (chrome.runtime.lastError) {
+            console.error("Notification error:", chrome.runtime.lastError.message);
+        } else {
+            console.log("✅ Notification shown:", notificationId);
+        }
+    });
+}
+
+
+
+async function checkGaze() {
+    console.log("Checking gaze...");
+    try {
+        let response = await fetch("http://localhost:5000/gaze");
+        // console.log("Response from gaze tracking server:", response);
+        
+        let data = await response.json();
+        
+        if (!data) {
+            console.error("❌ No gaze data received from server");
+            return;
+        }
+        // console.log("Gaze data:", data);
+        
+        if (data.left == null || data.right == null || data.center == null || data.blinking == null) {
+            console.warn("please readjust the camera!!!", data);
+            notifyUser("Please readjust the camera!");
+            chrome.tts.speak("Please readjust the camera!");
+            return;
+        }
+
+        if (data.left || data.right) {
+            console.log("❌ User is not focused!");
+            triggerPopupOnce(); // Call the function to trigger the popup
+        }
+        else {
+            console.log("✅ User is focused!");
+        }
+
+        // if (data.left) {
+        //     console.log("👀 User is looking left!");
+        // } else if (data.right) {
+        //     console.log("👀 User is looking right!");
+        // } else if (data.center) {
+            
+        // } else if (data.blinking) {
+        //     console.log("😴 User is blinking!");
+        // }
+    
+    } catch (error) {
+        console.error("❌ Gaze tracking server is not running", error);
+    }
+}
+
+// Check gaze every second
+setInterval(checkGaze, 1 * 60 * 1000);
