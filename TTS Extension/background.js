@@ -46,12 +46,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.sidePanel.setOptions({
-        enabled: true,
-        path: "summarysidepanel.html"
-    });
-});
 
 chrome.action.onClicked.addListener(() => {
     chrome.windows.getCurrent((window) => {
@@ -106,78 +100,14 @@ chrome.runtime.onStartup.addListener(() => {
     // chrome.storage.local.set({ summary: ["📄 No page summarized yet."] });
 });
 
-// Also clear on install for good measure
 chrome.runtime.onInstalled.addListener(() => {
     console.log("🆕 Extension installed, clearing summary...");
-    // chrome.storage.local.set({ summary: ["📄 No page summarized yet."] });
+    // chrome.sidePanel.setOptions({
+    //     enabled: true,
+    //     path: "summarysidepanel.html"
+    // });
 });
 
-
-// // Function to inject summarization script
-// function injectSummarizationScript(tabId) {
-//     chrome.scripting.executeScript({
-//         target: { tabId: tabId },
-//         files: ["summarization.js"]
-//     }).catch(error => console.error("Error injecting script:", error));
-// }
-
-// // Detect when a tab is updated (new page load or refresh)
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-//     if (changeInfo.status === "complete" && tab.url && tab.url.startsWith("http")) {
-//         console.log("Tab updated:", tab.url);
-//         injectSummarizationScript(tabId);
-//         chrome.storage.local.set({ summary: ["⏳ Summarizing new tab..."] });
-//     }
-// });
-
-// // Detect when the user switches tabs
-// chrome.tabs.onActivated.addListener(async (activeInfo) => {
-//     try {
-//         const tab = await chrome.tabs.get(activeInfo.tabId);
-//         if (tab.url && tab.url.startsWith("http")) {
-//             console.log("Tab switched to:", tab.url);
-//             injectSummarizationScript(tab.id);
-//         }
-//     } catch (error) {
-//         console.error("Error switching tab:", error);
-//     }
-// });
-
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//     if (message.action === "togglePanel") {
-//         console.log("Opening side panel: sidepanel.html");
-
-//         chrome.sidePanel.setOptions({
-//             path: "sidepanel.html",
-//             enabled: true
-//         }).catch((error) => console.error("Failed to open side panel:", error));
-//     }
-
-//     if (message.summary) {
-//         chrome.storage.local.set({ summary: message.summary });
-//     }
-// });
-
-
-// function injectSummarizationScript(tabId) {
-//     // Abort previous summarization if exists
-//     if (tabControllers[tabId]) {
-//         tabControllers[tabId].abort();
-//         console.log(`❌ Aborted previous summarization on tab ${tabId}`);
-//     }
-
-//     // Send a message to the content script to clear previous summary immediately
-//     chrome.tabs.sendMessage(tabId, { action: "abort" });
-
-//     // Inject the summarization script
-//     chrome.scripting.executeScript({
-//         target: { tabId: tabId },
-//         files: ["summarization.js"]
-//     }).catch(error => console.error("Error injecting script:", error));
-
-//     // New controller
-//     tabControllers[tabId] = new AbortController();
-// }
 
 /// gaze track
 

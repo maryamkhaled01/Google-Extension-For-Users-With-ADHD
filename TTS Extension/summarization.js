@@ -1,3 +1,5 @@
+let controller = new AbortController();  // global controller
+
 function extractText() {
     try {
         let textSections = [];
@@ -127,8 +129,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("📭 Abort message received.");
     }
 });
-
-let controller = new AbortController();  // global controller
 
 async function summarizeWithAbortCheck(text, signal) {
     if (signal.aborted) return ["❌ Summarization aborted."];
