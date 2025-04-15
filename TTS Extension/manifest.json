@@ -20,7 +20,7 @@
       },
   "side_panel": {
     "default_title": "Side Panel",
-    "default_path": "summarysidepanel.html"
+    "default_path": "sidepanel.html"
   },
   "content_scripts": [
     {
