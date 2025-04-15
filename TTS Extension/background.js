@@ -1,4 +1,4 @@
-let currentPanel = "sidepanel.html"; // Default panel
+// let currentPanel = "sidepanel.html"; // Default panel
 
 chrome.action.onClicked.addListener(() => {
     chrome.windows.getCurrent((window) => {
@@ -13,7 +13,7 @@ chrome.action.onClicked.addListener(() => {
     });
 });
 
-chrome.idle.setDetectionInterval(15);  // 15 seconds
+chrome.idle.setDetectionInterval(200);  // 15 seconds
 
 chrome.idle.onStateChanged.addListener((state) => {
     if (state === "idle" || state === "locked") {
@@ -63,14 +63,14 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 // Listen for messages from summarization script and store the summary
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "togglePanel") {
-      currentPanel = (currentPanel === "sidepanel.html") ? "summarysidepanel.html" : "sidepanel.html";
-      console.log("Switching panel to:", currentPanel);
+        console.log("Opening side panel: sidepanel.html");
 
-      chrome.sidePanel.setOptions({
-          path: currentPanel,
-          enabled: true
-      }).catch((error) => console.error("Failed to switch side panel:", error));
+        chrome.sidePanel.setOptions({
+            path: "sidepanel.html",
+            enabled: true
+        }).catch((error) => console.error("Failed to open side panel:", error));
     }
+
     if (message.summary) {
         chrome.storage.local.set({ summary: message.summary });
     }
