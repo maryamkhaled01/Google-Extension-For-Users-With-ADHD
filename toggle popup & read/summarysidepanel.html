@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Focus Booster</title>
+        <link rel="stylesheet" href="CSS/bootstrap.min.css">
+        <link rel="stylesheet" href="./CSS/summary.css">
+    </head>
+
+    <body>
+
+        <canvas id="starCanvas"></canvas>
+
+        <div class="container my-4 pt-3 w-100 mx-auto text-center">
+            <h2 class="animated-text">✨ Summary ✨</h2>
+            <div id="contentDisplay" class="">
+                <p id="summaryText">Loading summary...</p>
+            </div>
+            <button id="togglePanelButton" class="btn rounded-4 btn-primary mx-auto mt-3">🔄 Switch Side Panel</button>
+        </div>
+
+        <script src="bootstrap/bootstrap.bundle.min.js"></script>
+        <script src="summarypanel.js"></script>
+        <script src="sidepanel.js" type="module"></script> 
+        <script src="./stars.js"></script>
+    </body>
+
+</html>
