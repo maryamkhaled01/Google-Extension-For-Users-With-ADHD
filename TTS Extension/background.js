@@ -146,7 +146,6 @@ function notifyUser(message) {
 }
 
 
-
 async function checkGaze() {
     console.log("Checking gaze...");
     try {
@@ -165,11 +164,18 @@ async function checkGaze() {
             console.warn("please readjust the camera!!!", data);
             notifyUser("Please readjust the camera!");
             chrome.tts.speak("Please readjust the camera!");
+            chrome.windows.create({
+                url: "adjustCameraPopup.html",
+                type: "popup",
+                width: 800,
+                height: 600
+            });
             return;
         }
 
         if (data.left || data.right) {
             console.log("❌ User is not focused!");
+            console.log("Gaze data:", data);
             triggerPopupOnce(); // Call the function to trigger the popup
         }
         else {
