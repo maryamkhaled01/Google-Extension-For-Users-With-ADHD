@@ -64,7 +64,7 @@ async function summarizeText(text, percentage = 0.1) {
     const sentences = text.match(/[^.!?]+[.!?]/g) || [];
     if (sentences.length === 0) {
         console.log("No valid sentences found.");
-        return ["No summary available."];
+        return ["No relevant content available for summarization."];
     }
 
     const words = text.split(/\s+/);
