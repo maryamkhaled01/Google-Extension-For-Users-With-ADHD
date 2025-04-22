@@ -108,7 +108,83 @@ chrome.runtime.onInstalled.addListener(() => {
     // });
 });
 
+/////////////////////////////////////////////////////////////////////////////////
+/////// cursor tracking
 
+// background.js
+let latestHoveredText = "";
+let latestCursorPosition = { x: 0, y: 0 };
+let inactivityTimer = null;
+const INACTIVITY_THRESHOLD = 5000; // 15 seconds
+
+// Reset timer when user is active
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(triggerIdleActions, INACTIVITY_THRESHOLD);
+}
+
+// Listen for activity messages from content script
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === "userActive") {
+        console.log("User is active, resetting inactivity timer.");
+        resetInactivityTimer();
+    }
+});
+// background.js
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === "saveHoveredText") {
+        if (message.text && message.text.trim()) {
+            latestHoveredText = message.text.trim();
+            console.log("Saved hovered text:", latestHoveredText);
+        }
+    }
+});
+
+
+function triggerIdleActions() {
+    checkGaze(); // Check gaze status
+    resetInactivityTimer(); // Reset the timer for the next check
+    console.log("User is idle, checking gaze status...");
+}
+
+function getTextNearCursor() {
+    return new Promise((resolve) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            // Add return here to exit early
+            if (!tabs[0]?.id) return resolve(null);
+            
+            chrome.tabs.sendMessage(
+                tabs[0].id,
+                { action: "getTextAtPosition", position: latestCursorPosition },
+                (response) => {
+                    resolve(response?.text || null);
+                }
+            );
+        });
+    });
+}
+
+async function speakSavedText() {
+    let message;
+    
+    if (latestHoveredText) {
+        // Use hovered text if available
+        message = `You were looking at: "${latestHoveredText}"`;
+        latestHoveredText = "";
+    } else {
+        // Request text near cursor position from content script
+        const textNearCursor = await getTextNearCursor();
+        console.log("Text near cursor:", textNearCursor);
+        message = `Hey, wake up! "${textNearCursor}"`; 
+    }
+
+    chrome.tts.speak(message, {
+        rate: 1.0,
+        pitch: 2.0,
+        volume: 1.0
+    });
+}
+////////////////////////////////////////////////////////////////////////////////
 /// gaze track
 
 function triggerPopupOnce() {
@@ -176,7 +252,13 @@ async function checkGaze() {
         if (data.left || data.right) {
             console.log("❌ User is not focused!");
             console.log("Gaze data:", data);
-            triggerPopupOnce(); // Call the function to trigger the popup
+            const randomAction = Math.random() < 0.5 ? "popup" : "tts";
+            
+            if (randomAction === "popup") {
+                triggerPopupOnce();
+            } else {
+                await speakSavedText(); // Wait for TTS to finish
+            }
         }
         else {
             console.log("✅ User is focused!");
@@ -198,4 +280,4 @@ async function checkGaze() {
 }
 
 // Check gaze every second
-setInterval(checkGaze, 1 * 60 * 1000);
+// setInterval(checkGaze, 1 * 60 * 1000);

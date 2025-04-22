@@ -1,5 +1,58 @@
 let controller = new AbortController();  // global controller
 
+document.addEventListener('mousemove', () => {
+    chrome.runtime.sendMessage({ action: "userActive" });
+});
+
+document.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ action: "userActive" });
+});
+
+document.addEventListener('keydown', () => {
+    chrome.runtime.sendMessage({ action: "userActive" });
+});
+// Track text hover events
+document.addEventListener('mouseover', (event) => {
+    const target = event.target;
+
+    // Check if the hovered element is text (e.g., not an image/button)
+    if (target && target.nodeType === Node.ELEMENT_NODE && target.textContent.trim() !== "") {
+        const hoveredText = target.textContent.trim().substring(0, 100); // Limit to 100 chars
+        if (hoveredText) {
+            // Send text to background script
+            chrome.runtime.sendMessage({
+                action: "saveHoveredText",
+                text: hoveredText
+            });
+        }
+    }
+});
+
+// New: Handle text retrieval requests
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "getTextAtPosition") {
+        const { x, y } = message.position;
+        
+        // Convert page coordinates to viewport coordinates
+        const clientX = x - window.scrollX;
+        const clientY = y - window.scrollY;
+        
+        // Get elements at cursor position
+        const elements = document.elementsFromPoint(clientX, clientY);
+        
+        // Extract text from the first valid element
+        for (const element of elements) {
+            const text = element.textContent?.trim().substring(0, 100); // Limit to 100 chars
+            if (text) {
+                sendResponse({ text });
+                return;
+            }
+        }
+        
+        sendResponse({ text: null });
+    }
+});
+
 function extractText() {
     try {
         let textSections = [];
