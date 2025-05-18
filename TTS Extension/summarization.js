@@ -1,5 +1,8 @@
 let controller = new AbortController();  // global controller
 
+
+console.log("ContentLoaded: summarization.js is active");
+
 document.addEventListener('mousemove', () => {
     chrome.runtime.sendMessage({ action: "userActive" });
 });
@@ -30,6 +33,8 @@ document.addEventListener('mouseover', (event) => {
 
 // New: Handle text retrieval requests
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("Received message: text at position", message);
+
     if (message.action === "getTextAtPosition") {
         const { x, y } = message.position;
         
@@ -50,6 +55,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         
         sendResponse({ text: null });
+    }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "playAudio") {
+        console.log("🎵 Playing audio received from background script");
+        const audio = new Audio(message.audioData); // Create an audio element with the base64 data
+        audio.play() // Play the audio
+            .then(() => {
+                console.log("✅ Audio playback started successfully");
+            })
+            .catch((error) => {
+                console.error("❌ Error during audio playback:", error);
+            });
     }
 });
 
@@ -214,81 +233,6 @@ async function summarizeWithAbortCheck(text, signal) {
     }
 })();
 
-
-
-// async function summarizeText(text) {
-//     console.log("Extracted Text:", text);
-
-//     const sentences = text.match(/[^.!?]+[.!?]/g) || [];
-//     if (sentences.length === 0) {
-//         console.log("No valid sentences found.");
-//         return ["No summary available."];
-//     }
-
-//     const words = text.split(/\s+/);
-//     const tfidf = {};
-//     words.forEach(word => {
-//         tfidf[word] = (tfidf[word] || 0) + 1;
-//     });
-
-//     const dtMatrix = sentences.map(sentence => 
-//         sentence.split(/\s+/).map(word => tfidf[word] || 0)
-//     );
-    
-//     const similarityMatrix = dtMatrix.map(row => 
-//         dtMatrix.map(col => row.reduce((sum, val, i) => sum + val * col[i], 0))
-//     );
-
-//     const scores = new Array(sentences.length).fill(1);
-//     const d = 0.85, maxIter = 100, tol = 1e-5;
-//     for (let iter = 0; iter < maxIter; iter++) {
-//         let newScores = new Array(sentences.length).fill(0);
-//         let diff = 0;
-        
-//         similarityMatrix.forEach((row, i) => {
-//             row.forEach((val, j) => {
-//                 if (i !== j) {
-//                     newScores[i] += d * (val * scores[j]);
-//                 }
-//             });
-//             newScores[i] += (1 - d);
-//             diff += Math.abs(newScores[i] - scores[i]);
-//         });
-        
-//         scores.splice(0, scores.length, ...newScores);
-//         if (diff < tol) break;
-//     }
-
-//     const rankedSentences = scores.map((score, index) => ({
-//         sentence: sentences[index].trim(),
-//         wordCount: sentences[index].trim().split(/\s+/).length,
-//         score
-//     }))
-//     .filter(s => s.wordCount >= 10 && s.wordCount <= 30)  // medium-length filter
-//     .sort((a, b) => b.score - a.score);
-
-//     const topSentences = rankedSentences.slice(0, 10).map(s => s.sentence);
-
-//     console.log("Generated Summary:", topSentences);
-//     return topSentences;
-// }
-
-
-// (async function () {
-//     const text = extractText();
-//     if (!text || text.trim().length < 50 || text === "No relevant content available for summarization.") {
-//         chrome.runtime.sendMessage({ summary: ["No summary available."] });
-//         return;
-//     }
-
-//     // Send loading message immediately
-//     chrome.runtime.sendMessage({ summary: ["⏳ Summarizing... please wait"] });
-
-//     const summaryList = await summarizeText(text);
-
-//     // Then send the final summary
-//     chrome.runtime.sendMessage({ summary: summaryList });
-// })();
 
 
 

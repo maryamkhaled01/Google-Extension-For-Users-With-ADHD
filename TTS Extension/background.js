@@ -60,6 +60,7 @@ chrome.action.onClicked.addListener(() => {
     });
 });
 
+
 // chrome.idle.setDetectionInterval(15);  // 15 seconds
 
 // chrome.idle.onStateChanged.addListener((state) => {
@@ -77,6 +78,88 @@ chrome.action.onClicked.addListener(() => {
 //         });
 //     }
 // });
+const ttsCache = {};
+
+async function speakText(text) {
+    try {
+        console.log("💬 Initiating TTS for text:", text);
+
+        // Check if the text is already cached
+        if (ttsCache[text]) {
+            console.log("✅ Using cached audio for text:", text);
+            await playAudio(ttsCache[text]);
+            return;
+        }
+
+        console.log("⏳ Fetching new audio from server for text:", text);
+
+        // Fetch the audio file from the server
+        const response = await fetch("http://localhost:5000/speak", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server TTS failed: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        console.log("✅ Successfully generated .wav file for text:", text);
+
+        // Convert the Blob to a base64-encoded string
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = async () => {
+            const base64Audio = reader.result;
+
+            // Cache the base64 audio data
+            ttsCache[text] = base64Audio;
+            console.log("💾 Cached audio for text:", text);
+
+            // Play the audio
+            await playAudio(base64Audio);
+        };
+    } catch (error) {
+        console.error("❌ Error during TTS:", error);
+
+        // Fallback to Chrome TTS if the server fails
+        console.log("⚠️ Falling back to Chrome TTS for text:", text);
+        chrome.tts.speak(text, {
+            rate: 1.0,
+            pitch: 2.0,
+            volume: 1.0
+        });
+    }
+}
+
+// Function to play audio based on the context
+async function playAudio(base64Audio) {
+    console.log("🎵 Opening hidden popup for audio playback");
+
+    // Open a hidden popup window
+    chrome.windows.create({
+        url: "hidden_popup.html",
+        type: "popup",
+        width: 1,
+        height: 1,
+        left: -1000, // Off-screen
+        top: -1000
+    }, (window) => {
+        if (chrome.runtime.lastError) {
+            console.error("❌ Error opening hidden popup:", chrome.runtime.lastError.message);
+            return;
+        }
+
+        // Send the audio data to the hidden popup
+        setTimeout(() => {
+            chrome.runtime.sendMessage({
+                action: "playAudio",
+                audioData: base64Audio
+            });
+        }, 500); // Wait for the popup to load
+    });
+}
 
 // Listen for messages from summarization script and store the summary
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -84,13 +167,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const url = new URL(sender.tab.url).href;
         chrome.storage.local.set({ [url]: message.summary });
         chrome.storage.local.set({ summary: message.summary }); // Also update current display
-    }
-
-    if (message.action === "togglePanel") {
-        chrome.sidePanel.setOptions({
-            path: "sidepanel.html",
-            enabled: true
-        }).catch((error) => console.error("Failed to open side panel:", error));
     }
 });
 
@@ -115,7 +191,7 @@ chrome.runtime.onInstalled.addListener(() => {
 let latestHoveredText = "";
 let latestCursorPosition = { x: 0, y: 0 };
 let inactivityTimer = null;
-const INACTIVITY_THRESHOLD = 5000; // 15 seconds
+const INACTIVITY_THRESHOLD = 2 * 60 * 1000; // 15 seconds
 
 // Reset timer when user is active
 function resetInactivityTimer() {
@@ -130,12 +206,11 @@ chrome.runtime.onMessage.addListener((message) => {
         resetInactivityTimer();
     }
 });
-// background.js
+
 chrome.runtime.onMessage.addListener((message) => {
     if (message.action === "saveHoveredText") {
         if (message.text && message.text.trim()) {
             latestHoveredText = message.text.trim();
-            console.log("Saved hovered text:", latestHoveredText);
         }
     }
 });
@@ -178,11 +253,8 @@ async function speakSavedText() {
         message = `Hey, wake up! "${textNearCursor}"`; 
     }
 
-    chrome.tts.speak(message, {
-        rate: 1.0,
-        pitch: 2.0,
-        volume: 1.0
-    });
+    console.log("📢 Preparing to speak saved text:", message);
+    await speakText(message); // Use server-based TTS
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// gaze track
@@ -225,7 +297,7 @@ function notifyUser(message) {
 async function checkGaze() {
     console.log("Checking gaze...");
     try {
-        let response = await fetch("http://localhost:5000/gaze");
+        const response = await fetch(`http://localhost:5000/gaze?t=${Date.now()}`)
         // console.log("Response from gaze tracking server:", response);
         
         let data = await response.json();
@@ -239,7 +311,7 @@ async function checkGaze() {
         if (data.left == null || data.right == null || data.center == null || data.blinking == null) {
             console.warn("please readjust the camera!!!", data);
             notifyUser("Please readjust the camera!");
-            chrome.tts.speak("Please readjust the camera!");
+            await speakText("Please readjust the camera!");
             chrome.windows.create({
                 url: "adjustCameraPopup.html",
                 type: "popup",

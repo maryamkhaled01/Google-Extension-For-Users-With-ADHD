@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hidden Popup</title>
+</head>
+<body>
+    <audio id="audioPlayer" controls></audio>
+    <script>
+        chrome.runtime.onMessage.addListener((message) => {
+            if (message.action === "playAudio") {
+                const audio = document.getElementById("audioPlayer");
+                audio.src = message.audioData;
+                audio.play();
+            }
+        });
+    </script>
+</body>
+</html>
