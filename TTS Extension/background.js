@@ -191,7 +191,7 @@ chrome.runtime.onInstalled.addListener(() => {
 let latestHoveredText = "";
 let latestCursorPosition = { x: 0, y: 0 };
 let inactivityTimer = null;
-const INACTIVITY_THRESHOLD = 2 * 60 * 1000; // 15 seconds
+const INACTIVITY_THRESHOLD = 1 * 30 * 1000; // 15 seconds
 
 // Reset timer when user is active
 function resetInactivityTimer() {
@@ -252,7 +252,7 @@ async function speakSavedText() {
         console.log("Text near cursor:", textNearCursor);
         message = `Hey, wake up! "${textNearCursor}"`; 
     }
-
+    
     console.log("📢 Preparing to speak saved text:", message);
     await speakText(message); // Use server-based TTS
 }
@@ -260,9 +260,9 @@ async function speakSavedText() {
 /// gaze track
 
 function triggerPopupOnce() {
-
+    
     popupCooldown = true;
-
+    
     chrome.windows.create({
         url: "popup.html",
         type: "popup",
@@ -293,63 +293,69 @@ function notifyUser(message) {
     });
 }
 
+///////////////// GAZE TRACKING ///////////////////////////////////////
+
+
+async function ensureOffscreen() {
+    const exists = await chrome.offscreen.hasDocument();
+    if(exists) return;
+    if (!exists) {
+      await chrome.offscreen.createDocument({
+        url: 'offscreen.html',
+        reasons: ['AUDIO_PLAYBACK'],
+        justification: 'Text-to-speech and checking gaze while idle'
+      });
+    }
+  }
+
 
 async function checkGaze() {
-    console.log("Checking gaze...");
-    try {
-        const response = await fetch(`http://localhost:5000/gaze?t=${Date.now()}`)
-        // console.log("Response from gaze tracking server:", response);
-        
-        let data = await response.json();
-        
-        if (!data) {
-            console.error("❌ No gaze data received from server");
-            return;
-        }
-        // console.log("Gaze data:", data);
-        
-        if (data.left == null || data.right == null || data.center == null || data.blinking == null) {
-            console.warn("please readjust the camera!!!", data);
-            notifyUser("Please readjust the camera!");
-            await speakText("Please readjust the camera!");
-            chrome.windows.create({
-                url: "adjustCameraPopup.html",
-                type: "popup",
-                width: 800,
-                height: 600
-            });
-            return;
-        }
+  try {
+    await ensureOffscreen();
 
-        if (data.left || data.right) {
-            console.log("❌ User is not focused!");
-            console.log("Gaze data:", data);
-            const randomAction = Math.random() < 0.5 ? "popup" : "tts";
+    chrome.runtime.sendMessage({ action: "checkGaze" }, async (data) => {
+      if (chrome.runtime.lastError) {
+        console.error("❌ Message error:", chrome.runtime.lastError.message);
+        return;
+      }
+
+      if (!data || data.left == null || data.right == null || data.center == null || data.blinking == null) {
+        console.warn("Please readjust the camera!", data);
+        notifyUser("Please readjust the camera!");
+        chrome.tts.speak("Please readjust the camera!");
+        chrome.windows.create({
+          url: "adjustCameraPopup.html",
+          type: "popup",
+          width: 800,
+          height: 600
+        });
+        return;
+      }
+
+      if (data.left || data.right) {
+        console.log("❌ User is not focused!");
+        // notifyUser("You seem distracted!");
+        // chrome.tts.speak("You seem distracted!");
+        const randomAction = Math.random() < 0.5 ? "popup" : "tts";
             
             if (randomAction === "popup") {
                 triggerPopupOnce();
             } else {
                 await speakSavedText(); // Wait for TTS to finish
             }
-        }
-        else {
-            console.log("✅ User is focused!");
-        }
-
-        // if (data.left) {
-        //     console.log("👀 User is looking left!");
-        // } else if (data.right) {
-        //     console.log("👀 User is looking right!");
-        // } else if (data.center) {
-            
-        // } else if (data.blinking) {
-        //     console.log("😴 User is blinking!");
-        // }
-    
-    } catch (error) {
-        console.error("❌ Gaze tracking server is not running", error);
-    }
+      } else {
+        console.log("✅ User is focused!");
+      }
+    });
+  } catch (error) {
+    console.error("❌ Gaze tracking error:", error);
+  }
 }
 
 // Check gaze every second
 // setInterval(checkGaze, 1 * 60 * 1000);
+
+
+
+
+
