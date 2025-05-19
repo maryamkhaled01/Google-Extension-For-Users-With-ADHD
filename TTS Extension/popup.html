@@ -1,38 +1,74 @@
+
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Focus Booster</title>
-        <!-- Use local Bootstrap CSS -->
-        <link rel="stylesheet" href="CSS/bootstrap.min.css">
-        <link rel="stylesheet" href="CSS/summary.css">
-    </head>
-
-<body class="container text-center vh-100">
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Booster</title>
+    <link rel="stylesheet" href="CSS/bootstrap.min.css">
+    <link rel="stylesheet" href="CSS/summary.css">
+    <style>
+        .hidden {
+            display: none !important;
+        }
+        body {
+            width: 350px;
+            min-height: 200px;
+            padding: 15px;
+            overflow: auto;
+            background: transparent;
+        }
+        #contentContainer {
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+        #contentDisplay {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        #answerDisplay {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            color: white;
+        }
+        .btn-group {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="container text-center">
     <canvas id="starCanvas"></canvas>
     
-    <div class="container p-3 mt-5">
+    <div class="container p-3">
         <h1>✨ FUN TIME ✨</h1>
-
-
-        <p id="contentDisplay" class="mb-2 p-2 bg-black rounded-3 text-white animated-text" style="--bs-bg-opacity: .3;">Loading...</p>
-        <button id="speakContentButton" type="button" class="btn btn-outline-dark mb-4">Read Aloud</button>
-
-        <form>
-            <div class="form-group">
-                <textarea id="textInput" placeholder="Enter text here..." class="form-control" rows="3"></textarea>
+        
+        <div id="contentContainer">
+            <p id="contentDisplay">Loading...</p>
+            <div id="answerDisplay" class="hidden"></div>
+            <div class="btn-group">
+                <button id="speakContentButton" class="btn btn-outline-dark">Read Aloud</button>
+                <button id="showAnswerButton" class="btn btn-info hidden">Show Answer</button>
             </div>
-        </form>
-      
-        <div>
-            <button id="playButton" type="button" class="btn btn-success mt-4">Play</button>
-            <button id="resetButton" type="button" class="btn btn-danger mt-4">Reset</button>
         </div>
     </div>
 
-    <!--Use local Bootstrap JavaScript -->
     <script src="bootstrap/bootstrap.bundle.min.js"></script>
     <script src="popup.js" type="module"></script>
     <script src="stars.js"></script>
