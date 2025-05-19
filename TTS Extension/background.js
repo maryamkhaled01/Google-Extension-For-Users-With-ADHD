@@ -73,7 +73,7 @@ chrome.action.onClicked.addListener(() => {
 //         });
 //         chrome.tts.speak("fun time", {
 //             rate: 1.0,
-//             pitch: 2.0,
+//             pitch: 1.0,
 //             volume: 1.0
 //         });
 //     }
@@ -211,10 +211,10 @@ chrome.runtime.onMessage.addListener((message) => {
     if (message.action === "saveHoveredText") {
         if (message.text && message.text.trim()) {
             latestHoveredText = message.text.trim();
+            console.log("Saved hovered text:", latestHoveredText);
         }
     }
 });
-
 
 function triggerIdleActions() {
     checkGaze(); // Check gaze status
@@ -250,12 +250,19 @@ async function speakSavedText() {
         // Request text near cursor position from content script
         const textNearCursor = await getTextNearCursor();
         console.log("Text near cursor:", textNearCursor);
-        message = `Hey, wake up! "${textNearCursor}"`; 
+        message = `Hey, wake up! "${textNearCursor}"`;    
     }
     
-    console.log("📢 Preparing to speak saved text:", message);
-    await speakText(message); // Use server-based TTS
+    // console.log("📢 Preparing to speak saved text:", message);
+    // await speakText(message); // Use server-based TTS
+
+    chrome.tts.speak(message, {
+        rate: 1.0,
+        pitch: 1.0,
+        volume: 1.0
+    });
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 /// gaze track
 
@@ -272,7 +279,7 @@ function triggerPopupOnce() {
 
     chrome.tts.speak("fun time", {
         rate: 1.0,
-        pitch: 2.0,
+        pitch: 1.0,
         volume: 1.0
     });
 }
