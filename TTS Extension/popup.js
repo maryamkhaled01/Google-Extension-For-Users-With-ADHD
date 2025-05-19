@@ -1,11 +1,24 @@
 
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+    // ===== ADD THE RESIZE CODE HERE =====
+    chrome.windows.getCurrent(window => {
+        chrome.windows.update(window.id, {
+            width: 500,
+            height: 450,
+            left: Math.floor(screen.width - 550), // Optional: keeps right-aligned
+            top: 100 // Optional: keeps near top
+        });
+    });
+    // ===== END OF RESIZE CODE =====
+
     // DOM Elements
     const contentDisplay = document.getElementById("contentDisplay");
     const speakContentButton = document.getElementById("speakContentButton");
     const showAnswerButton = document.getElementById("showAnswerButton");
     const answerDisplay = document.getElementById("answerDisplay");
+
 
     // Load CSV files
     async function loadCSV(file) {
@@ -27,6 +40,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         Joke 
     };
 
+    // Emoji mapping
+    const categoryEmojis = {
+        Exercise: "💪",
+        Riddle: "🤔",
+        Joke: "😂"
+    };
+
     let currentRiddleIndex = -1;
 
     function getRandomCategory() {
@@ -36,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     function getRandomContent() {
         const category = getRandomCategory();
+
         const items = categories[category];
         const index = Math.floor(Math.random() * items.length);
         const content = items[index];
@@ -44,42 +65,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             currentRiddleIndex = index;
         }
         
-        return { category, content };
-    }
 
-    // Update UI based on content type
-    function updateUI(category, content) {
-        contentDisplay.textContent = `${category}: ${content}`;
-        answerDisplay.classList.add("hidden");
-        showAnswerButton.classList.add("hidden");
-        
-        if (category === "Riddle") {
-            showAnswerButton.classList.remove("hidden");
-            chrome.windows.getCurrent(window => {
-                chrome.windows.update(window.id, {
-                    width: 400,
-                    height: 350,
-                    left: Math.floor(screen.width - 450),
-                    top: 100,
-                    focused: true
-                });
-            });
-        } else {
-            chrome.windows.getCurrent(window => {
-                chrome.windows.update(window.id, {
-                    width: 400,
-                    height: 250,
-                    left: Math.floor(screen.width - 450),
-                    top: 100,
-                    focused: true
-                });
-            });
-        }
+        // Add emoji to the content
+        const emoji = categoryEmojis[category];
+        return { 
+            category, 
+            content: `${emoji} ${content}` // Format: "💪 Do 10 pushups!"
+        };
+
+        //return { category, content };
     }
 
     // Initialize with random content
     const { category, content } = getRandomContent();
-    updateUI(category, content);
+    contentDisplay.textContent = `${category}: ${content}`;
+
+    // Toggle answer button visibility based on content type
+    showAnswerButton.classList.toggle("hidden", category !== "Riddle");
 
     // Event Listeners
     speakContentButton.addEventListener("click", () => {
@@ -95,13 +97,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             answerDisplay.textContent = `Answer: ${RiddleAnswers[currentRiddleIndex]}`;
             answerDisplay.classList.remove("hidden");
             showAnswerButton.classList.add("hidden");
-            chrome.windows.getCurrent(window => {
-                chrome.windows.update(window.id, {
-                    height: 350,
-                    focused: true
-                });
-            });
         }
     });
 });
-

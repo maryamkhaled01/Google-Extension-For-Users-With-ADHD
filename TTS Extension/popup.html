@@ -12,10 +12,10 @@
             display: none !important;
         }
         body {
-            width: 350px;
-            min-height: 200px;
+            width: 500px;  
+            height: 450px;  
             padding: 15px;
-            overflow: auto;
+            overflow: hidden;
             background: transparent;
         }
         #contentContainer {
@@ -25,8 +25,8 @@
         #contentDisplay {
             word-wrap: break-word;
             overflow-wrap: break-word;
-            max-height: 300px;
-            overflow-y: auto;
+            max-height: 400px;
+            overflow-y: hidden;
             background: rgba(0, 0, 0, 0.3);
             color: white;
             padding: 15px;
@@ -41,7 +41,7 @@
         }
         .btn-group {
             display: flex;
-            gap: 5px;
+            gap: 15px;
             margin-bottom: 10px;
             justify-content: center;
         }
@@ -64,7 +64,7 @@
             <div id="answerDisplay" class="hidden"></div>
             <div class="btn-group">
                 <button id="speakContentButton" class="btn btn-outline-dark">Read Aloud</button>
-                <button id="showAnswerButton" class="btn btn-info hidden">Show Answer</button>
+                <button id="showAnswerButton" class="btn btn-dark hidden">Show Answer</button>
             </div>
         </div>
     </div>
