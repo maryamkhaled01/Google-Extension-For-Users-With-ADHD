@@ -1,25 +1,87 @@
 <!-- adjust camera popup.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Adjust Your Face</title>
+  <meta charset="UTF-8" />
+  <title>Adjust Your Camera</title>
   <style>
     body {
-      margin: 0;
-      padding: 10px;
+      font-family: Arial, sans-serif;
       text-align: center;
+      padding: 20px;
+      background-color: #f9f9f9;
     }
-    video {
-      width: 100%;
-      height: auto;
-      background: black;
+
+    h2 {
+      color: #d9534f;
+    }
+
+    #video {
+      display: none;
+      margin-top: 15px;
+      width: 80%;
+      max-width: 600px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .rules {
+      text-align: left;
+      margin: 10px auto;
+      padding: 10px;
+      max-width: 600px;
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      border-radius: 5px;
+    }
+
+    .rule-item {
+      margin: 8px 0;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #5cb85c;
+      display: none;
+    }
+
+    #startButton {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #0275d8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #startButton:hover {
+      background-color: #025aa5;
     }
   </style>
 </head>
 <body>
-    <h2>Adjust Your Camera</h2>
-    <video id="video" autoplay playsinline muted></video>
-   <!-- Add TensorFlow and FaceMesh libraries -->
+  <h2>📷 Adjust Your Camera</h2>
+  <p>Please follow the instructions below to enable accurate gaze tracking:</p>
+
+  <div class="rules">
+    <div class="rule-item">✅ Ensure your <strong>full face is visible</strong> in the frame.</div>
+    <div class="rule-item">✅ Your eyes should be at <strong>eye level with the camera</strong>.</div>
+    <div class="rule-item">✅ Face the camera directly — <strong>not tilted or looking sideways</strong>.</div>
+    <div class="rule-item">✅ Make sure the room is <strong>well-lit</strong> (no backlighting).</div>
+    <div class="rule-item">✅ Webcam access is required and must be allowed.</div>
+    <div class="rule-item">💡 This window will <strong>automatically close</strong> once proper alignment is detected.</div>
+  </div>
+
+  <button id="startButton">I Read the Rules — Start Camera</button>
+
+  <video id="video" autoplay playsinline muted></video>
+
+  <div class="status" id="statusMessage">Waiting for proper alignment...</div>
+
   <script src="adjustCameraPopup.js"></script>
 </body>
 </html>
+

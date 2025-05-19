@@ -21,8 +21,9 @@ async function captureWebcamFrameAndSend() {
 
     await new Promise(resolve => {
       video.onloadedmetadata = () => {
-        video.play().then(resolve);
+        video.play();
       };
+      video.onplaying = resolve; // Resolve when video starts playing
     });
 
     // 2. Draw current frame on canvas
