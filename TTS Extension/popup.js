@@ -1,31 +1,53 @@
-import { getRandomEquation } from './equations.js';
+
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const textInput = document.getElementById("textInput");
-    const playButton = document.getElementById("playButton");
-    const resetButton = document.getElementById("resetButton");
+
+    // ===== ADD THE RESIZE CODE HERE =====
+    chrome.windows.getCurrent(window => {
+        chrome.windows.update(window.id, {
+            width: 500,
+            height: 450,
+            left: Math.floor(screen.width - 550), // Optional: keeps right-aligned
+            top: 100 // Optional: keeps near top
+        });
+    });
+    // ===== END OF RESIZE CODE =====
+
+    // DOM Elements
     const contentDisplay = document.getElementById("contentDisplay");
     const speakContentButton = document.getElementById("speakContentButton");
+    const showAnswerButton = document.getElementById("showAnswerButton");
+    const answerDisplay = document.getElementById("answerDisplay");
 
+
+    // Load CSV files
     async function loadCSV(file) {
         const response = await fetch(file);
         const text = await response.text();
         return text.split("\n").map(line => line.trim()).filter(line => line.length > 0);
     }
 
-    // Load from CSV
-    const Joke = await loadCSV(chrome.runtime.getURL("datasets/shortjokes.csv"));
-
-    const Riddle = await loadCSV(chrome.runtime.getURL("datasets/riddles.csv"));
-
-    const Exercise = await loadCSV(chrome.runtime.getURL("datasets/exercises.csv"));
+    const [Joke, Riddle, Exercise, RiddleAnswers] = await Promise.all([
+        loadCSV(chrome.runtime.getURL("datasets/shortjokes.csv")),
+        loadCSV(chrome.runtime.getURL("datasets/riddles.csv")),
+        loadCSV(chrome.runtime.getURL("datasets/exercises.csv")),
+        loadCSV(chrome.runtime.getURL("datasets/riddleAnswers.csv"))
+    ]);
 
     const categories = {
-        Equation : Array.from({ length: 5 }, () => getRandomEquation()), // Generate 5 random equations
         Exercise,
         Riddle,
         Joke 
     };
+
+    // Emoji mapping
+    const categoryEmojis = {
+        Exercise: "💪",
+        Riddle: "🤔",
+        Joke: "😂"
+    };
+
+    let currentRiddleIndex = -1;
 
     function getRandomCategory() {
         const keys = Object.keys(categories);
@@ -34,16 +56,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     function getRandomContent() {
         const category = getRandomCategory();
-        const items = categories[category];
-        const content = items[Math.floor(Math.random() * items.length)];
-        return { category, content }; // Return both category and content
-    }
-    
-    // Display random content with category
-    const { category, content } = getRandomContent();
-    contentDisplay.textContent = `${category}: ${content}`; // Show category name along with content
 
-    // Read the random content aloud
+        const items = categories[category];
+        const index = Math.floor(Math.random() * items.length);
+        const content = items[index];
+        
+        if (category === "Riddle") {
+            currentRiddleIndex = index;
+        }
+        
+
+        // Add emoji to the content
+        const emoji = categoryEmojis[category];
+        return { 
+            category, 
+            content: `${emoji} ${content}` // Format: "💪 Do 10 pushups!"
+        };
+
+        //return { category, content };
+    }
+
+    // Initialize with random content
+    const { category, content } = getRandomContent();
+    contentDisplay.textContent = `${category}: ${content}`;
+
+    // Toggle answer button visibility based on content type
+    showAnswerButton.classList.toggle("hidden", category !== "Riddle");
+
+    // Event Listeners
     speakContentButton.addEventListener("click", () => {
         chrome.tts.speak(contentDisplay.textContent, {
             rate: 1.0,
@@ -52,21 +92,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
 
-    // TTS for user input text
-    playButton.addEventListener("click", () => {
-        const text = textInput.value;
-        if (text.trim() === "") {
-            alert("Please enter some text!");
-            return;
+    showAnswerButton.addEventListener("click", () => {
+        if (currentRiddleIndex >= 0 && currentRiddleIndex < RiddleAnswers.length) {
+            answerDisplay.textContent = `Answer: ${RiddleAnswers[currentRiddleIndex]}`;
+            answerDisplay.classList.remove("hidden");
+            showAnswerButton.classList.add("hidden");
         }
-        chrome.tts.speak(text, {
-            rate: 1.0,
-            pitch: 1.0,
-            volume: 1.0
-        });
-    });
-
-    resetButton.addEventListener("click", () => {
-        textInput.value = "";
     });
 });

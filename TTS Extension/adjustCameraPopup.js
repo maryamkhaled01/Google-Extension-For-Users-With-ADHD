@@ -1,42 +1,65 @@
-const video = document.getElementById('video');
+document.addEventListener('DOMContentLoaded', () => {
+  const video = document.getElementById('video');
+  const button = document.getElementById('startButton');
+  const statusMessage = document.getElementById('statusMessage');
 
-// Start webcam
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then((stream) => {
-    video.srcObject = stream;
+  button.addEventListener('click', () => {
+    button.style.display = 'none';
+    video.style.display = 'block';
+    statusMessage.style.display = 'block';
 
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
 
-    // Send a snapshot every 2 seconds
-    setInterval(() => {
-      if (video.videoWidth === 0) return;
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let isWindowClosed = false;
 
-      const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+        const closeWindow = () => {
+          if (!isWindowClosed) {
+            isWindowClosed = true;
+            stream.getTracks().forEach(track => track.stop());
+            window.close();
+          }
+        };
 
-      fetch('https://web-production-020c8.up.railway.app/gaze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: base64Image })
+        setInterval(() => {
+          if (video.videoWidth === 0) return;
+
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
+
+          fetch('https://web-production-020c8.up.railway.app/gaze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64Image })
+          })
+            .then(res => res.json())
+            .then(data => {
+              console.log('Gaze data:', data);
+
+              // Only close if valid data is returned
+              if (data && (data.left !== null || data.right !== null || data.center !== null || data.blinking !== null)) {
+                console.log('✅ Valid gaze data received. Closing the window...');
+                chrome.runtime.sendMessage({ action: "gazeResult", data });
+                closeWindow();
+              }
+            })
+            .catch(err => console.error('❌ Error:', err));
+
+        }, 2000);
+
       })
-        .then(res => res.json())
-        .then(data => {
-          console.log('Gaze data:', data);
-          // You can now act on gaze data (e.g., show arrows or highlight UI)
-          chrome.runtime.sendMessage({
-            action: "gazeResult",
-            data: gazeData  // { left, right, center, blinking }
-          });
-          
-        })
-        .catch(err => console.error('Error:', err));
-    }, 2000);
-
-  })
-  .catch((err) => {
-    console.error('Could not start webcam:', err);
+      .catch((err) => {
+        console.error('❌ Could not start webcam:', err);
+        statusMessage.textContent = "❌ Failed to access webcam: " + err.message;
+        statusMessage.style.color = 'red';
+      });
   });
+});
+

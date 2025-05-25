@@ -3,6 +3,7 @@
 let tabControllers = {};
 // background.js
 // let currentPanel = "sidepanel.html"; // Default panel
+let cameraWindowId = null;
 
 function injectSummarizationScript(tabId) {
     // Send a message to the content script to abort the previous summarization
@@ -85,7 +86,7 @@ chrome.action.onClicked.addListener(() => {
 //         });
 //         chrome.tts.speak("fun time", {
 //             rate: 1.0,
-//             pitch: 2.0,
+//             pitch: 1.0,
 //             volume: 1.0
 //         });
 //     }
@@ -244,10 +245,10 @@ chrome.runtime.onMessage.addListener((message) => {
     if (message.action === "saveHoveredText") {
         if (message.text && message.text.trim()) {
             latestHoveredText = message.text.trim();
+            console.log("Saved hovered text:", latestHoveredText);
         }
     }
 });
-
 
 function triggerIdleActions() {
     checkGaze(); // Check gaze status
@@ -283,32 +284,73 @@ async function speakSavedText() {
         // Request text near cursor position from content script
         const textNearCursor = await getTextNearCursor();
         console.log("Text near cursor:", textNearCursor);
-        message = `Hey, wake up! "${textNearCursor}"`; 
+        message = `Hey, wake up! `;    
     }
     
-    console.log("📢 Preparing to speak saved text:", message);
-    await speakText(message); // Use server-based TTS
-}
-////////////////////////////////////////////////////////////////////////////////
-/// gaze track
+    // console.log("📢 Preparing to speak saved text:", message);
+    // await speakText(message); // Use server-based TTS
 
-function triggerPopupOnce() {
-    
-    popupCooldown = true;
-    
-    chrome.windows.create({
-        url: "popup.html",
-        type: "popup",
-        width: 800,
-        height: 600
-    });
-
-    chrome.tts.speak("fun time", {
+    chrome.tts.speak(message, {
         rate: 1.0,
-        pitch: 2.0,
+        pitch: 1.0,
         volume: 1.0
     });
 }
+
+////////////////////////////////////////////////////////////////////////////////
+/// gaze track
+
+let popupCooldown = false;
+let popupWindowId = null;
+
+function triggerPopupOnce() {
+  if (popupCooldown) {
+    // Already showing popup or in cooldown, do nothing
+    return;
+  }
+
+  popupCooldown = true;
+
+  chrome.windows.create({
+    url: "popup.html", // Changed URL to "adjustCameraPopup.html" per your usage
+    type: "popup",
+    width: 800,
+    height: 600
+  }, (window) => {
+    if (window) {
+      popupWindowId = window.id;
+      console.log("popup opened, window ID:", popupWindowId);
+
+      // Listen for popup window close to reset cooldown
+      chrome.windows.onRemoved.addListener(function onRemoved(windowId) {
+        if (windowId === popupWindowId) {
+          popupCooldown = false;
+          popupWindowId = null;
+          console.log("popup closed, cooldown reset.");
+
+          // Remove this listener after firing
+          chrome.windows.onRemoved.removeListener(onRemoved);
+        }
+      });
+    }
+  });
+
+  chrome.tts.speak("fun time", {
+    rate: 1.0,
+    pitch: 1.0,
+    volume: 1.0
+  });
+
+  // Optional fallback: reset cooldown after 2 minutes in case user never closes popup
+  setTimeout(() => {
+    if (popupCooldown) {
+      popupCooldown = false;
+      popupWindowId = null;
+      console.log("📷 Popup cooldown reset by timeout.");
+    }
+  }, 2 * 60 * 1000); // 2 minutes
+}
+
 
 
 function notifyUser(message) {
@@ -342,6 +384,75 @@ async function ensureOffscreen() {
   }
 
 
+// async function checkGaze() {
+//   try {
+//     await ensureOffscreen();
+
+//     chrome.runtime.sendMessage({ action: "checkGaze" }, async (data) => {
+//       if (chrome.runtime.lastError) {
+//         console.error("❌ Message error:", chrome.runtime.lastError.message);
+//         return;
+//       }
+
+//       if (!data || data.left == null || data.right == null || data.center == null || data.blinking == null) {
+//         console.warn("Please readjust the camera!", data);
+//         notifyUser("Please readjust the camera!");
+//         chrome.tts.speak("Please readjust the camera!");
+
+//         chrome.windows.create({
+//           url: "adjustCameraPopup.html",
+//           type: "popup",
+//           width: 800,
+//           height: 600
+//         });
+//         return;
+//       }
+
+//       if (data.left || data.right) {
+//         console.log("❌ User is not focused!");
+//         // notifyUser("You seem distracted!");
+//         // chrome.tts.speak("You seem distracted!");
+//         const randomAction = Math.random() < 0.5 ? "popup" : "tts";
+            
+//             if (randomAction === "popup") {
+//                 triggerPopupOnce();
+//             } else {
+//                 await speakSavedText(); // Wait for TTS to finish
+//             }
+//       } else {
+//         console.log("✅ User is focused!");
+//       }
+//     });
+//   } catch (error) {
+//     console.error("❌ Gaze tracking error:", error);
+//   }
+// }
+
+
+
+chrome.storage.local.get("cameraAdjusted", (result) => {
+  if (!result.cameraAdjusted) {
+    // Show the camera adjustment popup
+    chrome.windows.create({
+      url: "adjustCameraPopup.html",
+      type: "popup",
+      width: 800,
+      height: 600
+    }, (window) => {
+      if (window) {
+        cameraWindowId = window.id;
+        console.log("📷 New camera window ID:", cameraWindowId);
+      }
+    });
+
+    // Mark the camera as adjusted once the user completes the setup
+    chrome.storage.local.set({ cameraAdjusted: true });
+  }
+});
+
+let gazeRetries = 0;
+const MAX_GAZE_RETRIES = 5;
+
 async function checkGaze() {
   try {
     await ensureOffscreen();
@@ -352,33 +463,54 @@ async function checkGaze() {
         return;
       }
 
-      if (!data || data.left == null || data.right == null || data.center == null || data.blinking == null) {
-        console.warn("Please readjust the camera!", data);
-        notifyUser("Please readjust the camera!");
-        chrome.tts.speak("Please readjust the camera!");
-        chrome.windows.create({
-          url: "adjustCameraPopup.html",
-          type: "popup",
-          width: 800,
-          height: 600
-        });
-        return;
-      } 
+      if (data.left == null || data.right == null || data.center == null || data.blinking == null) {
 
-      if (data.left || data.right) {
-        console.log("❌ User is not focused!");
-        // notifyUser("You seem distracted!");
-        // chrome.tts.speak("You seem distracted!");
-        const randomAction = Math.random() < 0.5 ? "popup" : "tts";
+        gazeRetries++;
+
+        if (gazeRetries >= MAX_GAZE_RETRIES) {
+            console.warn("❌ Too many gaze tracking errors, showing camera adjustment popup.");
+            notifyUser("Please readjust the camera!");
+            chrome.tts.speak("Please readjust the camera!");
+
+            if (cameraWindowId !== null) {
+            try {
+                await chrome.windows.remove(cameraWindowId);
+                console.log("✅ Closed previous camera window");
+            } catch (error) {
+                console.error("Failed to close previous camera window:", error);
+            }
+            }
+    
+            // Show the camera adjustment popup
+            chrome.windows.create({
+                url: "adjustCameraPopup.html",
+                type: "popup",
+                width: 800,
+                height: 600
+            }, (window) => {
+                if (window) {
+                cameraWindowId = window.id;
+                console.log("📷 New camera window ID:", cameraWindowId);
+                }
+            });
+    
+            gazeRetries = 0; // Reset retries after showing the popup
+        }else{
+            console.log("❌ User is not focused!");
+            const randomAction = Math.random() < 0.5 ? "popup" : "tts";
             
             if (randomAction === "popup") {
-                triggerPopupOnce();
+            triggerPopupOnce();
             } else {
-                await speakSavedText(); // Wait for TTS to finish
+                await speakSavedText();
             }
-      } else {
-        console.log("✅ User is focused!");
-      }
+        }
+        
+        } else {
+        gazeRetries = 0; // Reset retries on successful gaze data
+        console.log("✅ User is focused!",data);
+        }
+        
     });
   } catch (error) {
     console.error("❌ Gaze tracking error:", error);
@@ -401,6 +533,19 @@ async function checkGaze() {
 
 }
 
+// Clean up any existing camera window when extension starts
+
+chrome.runtime.onStartup.addListener(() => {
+  if (cameraWindowId !== null) {
+    chrome.windows.remove(cameraWindowId).catch(() => {});
+    cameraWindowId = null;
+    console.log("🧹 Cleaned up camera window on startup");
+  }
+  // clear camera check from local storage
+    chrome.storage.local.remove("cameraAdjusted", () => {
+        console.log("🧹 Cleared camera adjustment flag on startup");
+    });
+});
 // Check gaze every second
 // setInterval(checkGaze, 1 * 60 * 1000);
 
