@@ -1,137 +1,116 @@
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #FFDDC1, #FF9A8B);
+    background: #f8f9fa;
+    color: #212529;
     text-align: center;
-    animation: bgAnimation 10s infinite alternate ease-in-out;
+    line-height: 1.5;
+    margin: 0;
+    padding: 20px;
+    font-size: 14px;
 }
 
-/* 🔥 Background Animation */
-@keyframes bgAnimation {
-    0% { background: #FFDDC1; }
-    100% { background: #FF9A8B; }
-}
-
-/* 🎯 Title Styles */
+/* Title Styles */
 h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 2s ease-in-out;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 20px 0;
 }
 
-/* Smooth Fade-in Effect */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 📌 Content Box Styling */
+/* Content Box Styling */
 #contentDisplay {
-    font-size: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #FFF;
-    padding: 15px;
-    border-radius: 10px;
-    transition: transform 0.3s ease-in-out, background 0.5s ease-in-out;
-    position: relative; 
-    z-index: 1; 
-}
-
-/* Hover Effect */
-#contentDisplay:hover {
-    background: rgba(0, 0, 0, 0.8);
-    transform: scale(1.01);
-}
-
-/* ✍️ Text Input Styling */
-#textInput {
-    font-size: 1.2rem;
-    border: 2px solid #ff5e57;
-    padding: 10px;
-    transition: border 0.3s ease-in-out;
-}
-
-/* Input Focus Effect */
-#textInput:focus {
-    border-color: #ffbe76;
-    outline: none;
-}
-
-/* ✨ Randomized Text Size for ADHD-Friendly Design */
-@keyframes textJitter {
-    0% { font-size: 1.5rem; }
-    50% { font-size: 1.7rem; }
-    100% { font-size: 1.6rem; }
-}
-
-#contentDisplay span {
-    display: inline-block;
-    animation: textJitter 40s infinite alternate ease-in-out;
-}
-
-/* 🎨 Button Styles */
-button {
-    font-size: 1.2rem;
-    font-weight: bold;
-    border-radius: 20px;
-    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
-}
-
-/* Button Hover Effect */
-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* 🌀 Animated Text */
-.animated-text {
-    animation: textWiggle 7s infinite alternate ease-in-out;
-}
-
-@keyframes textWiggle {
-    0% { transform: rotate(-2deg); }
-    100% { transform: rotate(2deg); }
-}
-
-h2, button {
-    position: relative;
-    z-index: 2;
-}
-
-/* 🔥 Randomized Text Size & Colors */
-#summaryText span {
-    display: inline-block;
-    animation: textJitter 30s infinite alternate ease-in-out;
-}
-
-/* 🌈 Make sure text is readable */
-#summaryText {
-    font-size: 1.4rem;
+    font-size: 1rem;
+    background-color: white;
+    color: #212529;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    max-width: 800px;
+    margin: 0 auto 20px;
     text-align: left;
-    padding: 10px;
 }
 
-/* 📌 Bullet points spacing */
+/* Summary Text with Tick Marks */
+#summaryText {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #212529;
+}
+
 #summaryText ul {
-    list-style-type: none;
-    padding: 0;
+    list-style: none;
+    padding-left: 0;
+    margin: 15px 0;
 }
 
+#summaryText li {
+    margin-bottom: 8px;
+    padding-left: 25px;
+    position: relative;
+    color: #212529;
+    font-size: 1rem;
+}
 
-/* Ensure the canvas is transparent */
-#starCanvas {
-    position: fixed;
-    top: 0;
+#summaryText li::before {
+    content: "✓";
+    color: #4CAF50;
+    position: absolute;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1; /* Behind all content */
-    background: transparent; /* Make sure it's transparent */
-    pointer-events: none;
+    font-weight: bold;
 }
 
-/* popup extra's */
+/* Error message styling */
+#summaryText.no-summary {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 1rem;
+}
 
+/* Text Input Styling */
+#textInput {
+    font-size: 0.9rem;
+    border: 1px solid #ced4da;
+    padding: 10px 12px;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
 
-  
-  
+#textInput:focus {
+    border-color: #4dabf7;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+}
+
+/* Button Styles */
+button {
+    font-size: 0.9rem;
+    font-weight: 500;
+    background-color: #4dabf7;
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    border-radius: 100%;
+    cursor: pointer;
+    /* margin: 5px; */
+    transition: background-color 0.15s ease;
+    top: 10px;
+    left: 10px;
+}
+
+button:hover {
+    background-color: #2980B9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    #contentDisplay {
+        padding: 15px;
+    }
+}

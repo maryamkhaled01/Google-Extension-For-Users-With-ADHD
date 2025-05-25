@@ -8,7 +8,7 @@
         <!-- Use local Bootstrap CSS -->
         <link rel="stylesheet" href="CSS/bootstrap.min.css">
         <!-- Link External CSS File -->
-        <link rel="stylesheet" href="./CSS/summary.css">
+        <link rel="stylesheet" href="../CSS/summary.css">
 
         <!-- Google Font for ADHD-Friendly Readability -->
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
@@ -41,11 +41,12 @@
 </body> -->
 
 <body>
-
-    <canvas id="starCanvas"></canvas>
+    
+    <button id="back-btn">←</button>
+    
 
     <div class="container my-4 pt-3 w-100 mx-auto text-center">
-        <h2 class="animated-text">✨ Summary ✨</h2>
+        <h2 class="animated-text"> Summary </h2>
         <div id="contentDisplay" class="">
             <p id="summaryText">Loading summary...</p>
         </div>
@@ -53,10 +54,22 @@
     </div>
 
     <script src="bootstrap/bootstrap.bundle.min.js"></script>
-    <script src="sidepanel.js"></script>
+    <script src="summaryPanel.js"></script>
     <!-- <script src="sidepanel.js" type="module"></script>  -->
     <script src="./stars.js"></script>
+    <!-- <script src="summaryPanel.js"></script> -->
 </body>
 </html>
+
+    <!-- <button onclick="goBack()">← Back</button> -->
+
+    <!-- <script>
+    function goBack() {
+    parent.postMessage({ action: "showToolbar" }, "*");
+    }
+    </script> -->
+
+
+
 
 </html>

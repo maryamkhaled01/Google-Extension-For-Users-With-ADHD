@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="CSS/narrowPanel.css" />
+  <title>Extension Side Panel</title>
+</head>
+<body>
+  <div id="narrowPanel" class="collapsed">
+    <header>
+
+    </header>
+    <div class="menu-bar" id="container">
+        <div class="icon-container" id="icon-container" >
+            <button id="summarize" class="icon-btn">
+                <img src="icons/summarize-white.png" alt="Summary Icon" class="icon">
+                <span> Summarize </span>
+            </button>
+            <button id="edit" class="icon-btn">
+                <img src="icons/edit-white.png" alt="Edit Icon" class="icon">
+                <span> Edit </span>
+            </button>
+            <button id="tske-notes" class="icon-btn">
+                <img src="icons/notes-white.png" alt="Notes Icon" class="icon">
+                <span> Take Notes </span>
+            </button>
+        </div>
+        <iframe id="summaryPanel" src="summary/summaryPanel.html" style="display: none;"></iframe>
+    </div>
+
+  </div>
+  <script src="narrowPanel.js"></script>
+</body>
+</html>

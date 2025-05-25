@@ -1,0 +1,123 @@
+/* Base styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f7f9fc;
+}
+
+/* Side panel container */
+#narrowPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #ECF0F1;
+  transition: width 0.3s ease;
+  overflow-x: hidden;
+  z-index: 1000;
+}
+
+/* Expanded state */
+#narrowPanel.expanded {
+  width: 200px;
+}
+
+/* Toggle button */
+#toggleButton {
+  background-color: #1A252F;
+  color: #ECF0F1;
+  border: none;
+  width: 100%;
+  padding: 10px 0;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* Icon container */
+.icon-container {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  /* align-items: center;
+  margin-top: 20px; */
+}
+
+/* Icon buttons */
+.icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: transparent;
+  border: none;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 100px;
+  /* color: #ECF0F1; */
+  /* font-size: 24px; */
+  /* margin: 15px 0; */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.icon-btn:hover{
+  background-color: #d3dbe4;
+}
+
+
+/*-------------------------------------------------------*/
+
+
+
+.icon-btn img {
+  width: 32px;
+  height: 32px;
+  fill: #ECF0F1;
+  transition: transform 0.3s ease;
+}
+
+.icon-btn:hover {
+  animation: bounce 0.4s ease;
+}
+
+@keyframes bounce {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-5px); }
+  60%  { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}
+
+
+#summaryPanel {
+  flex-grow: 1;
+  display: none; /* hidden by default */
+  border: none;
+  width: 300px;
+  height: 100vh;
+}
+
+span{
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+ /* summary panel */
+
+ .menu-bar {
+  display: block;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+
+#summary-panel {
+  width: 100%;
+  border: none;
+  height: 100vh;
+}
+
+
+
+
+

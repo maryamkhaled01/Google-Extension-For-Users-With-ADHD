@@ -1,15 +1,27 @@
-// let currentPanel = "sidepanel.html"; // Default panel
+
+
 let tabControllers = {};
+// background.js
+// let currentPanel = "sidepanel.html"; // Default panel
 
 function injectSummarizationScript(tabId) {
     // Send a message to the content script to abort the previous summarization
-    chrome.tabs.sendMessage(tabId, { action: "abort" }, () => {
-        // Ignore any errors — may happen if script wasn't already injected
-        chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            files: ["summarization.js"]
-        }).catch(error => console.error("Error injecting script:", error));
-    });
+   chrome.tabs.sendMessage(tabId, { action: "abort" }, () => {
+  if (chrome.runtime.lastError) {
+    console.warn("⚠️ No content script yet, injecting summarization.js now:", chrome.runtime.lastError.message);
+  } else {
+    console.log("✅ Content script responded, continuing...");
+  }
+
+  chrome.scripting.executeScript({
+    target: { tabId: tabId },
+    files: ["summarization.js"]
+  }).catch(error => console.error("❌ Script injection failed:", error));
+});
+
+
+
+
 
     // Optionally set status text in side panel
     chrome.storage.local.set({ summary: ["⏳ Summarizing new tab..."] });
@@ -170,14 +182,35 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
+
+function injectSummarizationIntoAllTabs() {
+  chrome.tabs.query({ url: ["http://*/*", "https://*/*"] }, (tabs) => {
+    for (const tab of tabs) {
+      if (!tab.id) continue;
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["summarization.js"]
+      }, () => {
+        if (chrome.runtime.lastError) {
+          console.warn("Injection failed in tab", tab.id, chrome.runtime.lastError.message);
+        } else {
+          console.log("✅ Injected summarization.js into tab", tab.id);
+        }
+      });
+    }
+  });
+}
+
 // Clear summary on extension start to avoid showing stale data
 chrome.runtime.onStartup.addListener(() => {
     console.log("🔄 Extension started, clearing summary...");
+    injectSummarizationIntoAllTabs();
     // chrome.storage.local.set({ summary: ["📄 No page summarized yet."] });
 });
 
 chrome.runtime.onInstalled.addListener(() => {
     console.log("🆕 Extension installed, clearing summary...");
+    injectSummarizationIntoAllTabs();
     // chrome.sidePanel.setOptions({
     //     enabled: true,
     //     path: "summarysidepanel.html"
@@ -330,7 +363,7 @@ async function checkGaze() {
           height: 600
         });
         return;
-      }
+      } 
 
       if (data.left || data.right) {
         console.log("❌ User is not focused!");
@@ -350,12 +383,26 @@ async function checkGaze() {
   } catch (error) {
     console.error("❌ Gaze tracking error:", error);
   }
+  //////////////////////////////////EDIT BTN//////////////////////////
+
+  chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message.action === "capturePage") {
+    chrome.tabs.captureVisibleTab(null, { format: "png" }, (dataUrl) => {
+      // Send the image data back to the content script
+      chrome.tabs.sendMessage(sender.tab.id, {
+        action: "downloadImage",
+        dataUrl: dataUrl
+      });
+    });
+  }
+});
+
+
+
 }
 
 // Check gaze every second
 // setInterval(checkGaze, 1 * 60 * 1000);
-
-
 
 
 

@@ -1,0 +1,32 @@
+#adhd-toolbar {
+  position: fixed;
+  top: 40%;
+  left: 0;
+  z-index: 99999;
+  background: #2c3e50;
+  padding: 10px 5px;
+  border-radius: 0 10px 10px 0;
+}
+
+#adhd-toolbar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+#adhd-toolbar img {
+  width: 28px;
+  height: 28px;
+}
+
+#adhd-summary-panel {
+  position: fixed;
+  top: 0;
+  left: 60px;
+  width: 360px;
+  height: 100vh;
+  border: none;
+  z-index: 99998;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}

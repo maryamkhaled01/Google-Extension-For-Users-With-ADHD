@@ -1,35 +1,54 @@
 let controller = new AbortController();  // global controller
 
 
+function safeSendMessage(message) {
+
+    if (!chrome.runtime?.id) {
+        console.warn("Extension context is not available.");
+        return;
+  }
+  try {
+      chrome.runtime.sendMessage(message, (response) => {
+      if (chrome.runtime.lastError) {
+        console.warn("Runtime error:", chrome.runtime.lastError.message);
+      }
+    });
+  } catch (err) {
+    console.error("SendMessage failed:", err.message);
+  }
+}
+
+
+
 console.log("ContentLoaded: summarization.js is active");
 
 document.addEventListener('mousemove', () => {
-    chrome.runtime.sendMessage({ action: "userActive" });
+    safeSendMessage({ action: "userActive" });
 });
 
 document.addEventListener('click', () => {
-    chrome.runtime.sendMessage({ action: "userActive" });
+    safeSendMessage({ action: "userActive" });
 });
 
 document.addEventListener('keydown', () => {
-    chrome.runtime.sendMessage({ action: "userActive" });
+    safeSendMessage({ action: "userActive" });
 });
 // Track text hover events
-document.addEventListener('mouseover', (event) => {
-    const target = event.target;
+// document.addEventListener('mouseover', (event) => {
+//     const target = event.target;
 
-    // Check if the hovered element is text (e.g., not an image/button)
-    if (target && target.nodeType === Node.ELEMENT_NODE && target.textContent.trim() !== "") {
-        const hoveredText = target.textContent.trim().substring(0, 100); // Limit to 100 chars
-        if (hoveredText) {
-            // Send text to background script
-            chrome.runtime.sendMessage({
-                action: "saveHoveredText",
-                text: hoveredText
-            });
-        }
-    }
-});
+//     // Check if the hovered element is text (e.g., not an image/button)
+//     if (target && target.nodeType === Node.ELEMENT_NODE && target.textContent.trim() !== "") {
+//         const hoveredText = target.textContent.trim().substring(0, 100); // Limit to 100 chars
+//         if (hoveredText) {
+//             // Send text to background script
+//             chrome.runtime.sendMessage({
+//                 action: "saveHoveredText",
+//                 text: hoveredText
+//             });
+//         }
+//     }
+// });
 
 // New: Handle text retrieval requests
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
