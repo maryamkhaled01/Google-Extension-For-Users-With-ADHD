@@ -13,12 +13,13 @@ body {
   display: flex;
   gap: 10px;
   z-index: 9999;
+  cursor: default; 
 }
 
 #toolbar img {
   width: 32px;
   height: 32px;
-  cursor: pointer;
+  /* cursor: pointer; */
   filter: grayscale(100%) brightness(1.2);
   transition: 0.3s ease;
 }
@@ -27,12 +28,82 @@ body {
   filter: none;
 }
 
-#annotationCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9998;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: auto;
+#toolbar img.active {
+  filter: none;
 }
+
+#exitButton , #clearButton {
+  margin-left: 12px;
+  padding: 0 12px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: white;
+  /* overflow: /; */
+}
+
+#exitButton:hover ,#clearButton:hover{
+  background: #f0f0f0;
+}
+
+
+.annotation-text {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.4;
+    cursor: text;
+}
+
+.annotation-text:focus {
+    border-color: #4285F4 !important;
+}
+
+
+.annotation-text-container {
+  position: absolute;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.text-edit-active {
+  z-index: 10000 !important;
+  pointer-events: auto !important;
+}
+
+
+
+/* Disable all text selection and pointer events */
+/* .annotation-mode {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  cursor: default !important;
+} */
+
+/* Allow interaction with your toolbar and annotations */
+/* #toolbar, #toolbar *,
+#svgAnnotationOverlay, #svgAnnotationOverlay * {
+  pointer-events: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+} */
+
+/* Specifically disable links */
+/* .annotation-mode a {
+  pointer-events: none !important;
+  cursor: default !important;
+} */
+
+/* Allow text selection in text input areas */
+/* #svgAnnotationOverlay textarea, 
+#svgAnnotationOverlay input, 
+#svgAnnotationOverlay [contenteditable] {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  pointer-events: auto !important;
+} */

@@ -14,7 +14,8 @@
     "activeTab",
     "tabs",
     "notifications",
-    "webNavigation"
+    "webNavigation",
+    "downloads"
   ],
   "host_permissions": [
     "https://web-production-020c8.up.railway.app/",
@@ -34,7 +35,7 @@
   "web_accessible_resources": [
     {
       "resources": ["datasets/*.csv", 
-      "icons/*.png",
+      "icons/*.png","lib/html2canvas.min.js","taking-notes/taking-notes.html",
       "adjustCameraPopup.html","offscreen.html","edit/edit.js","edit/edit.css", "edit/edit-icons/*.png"],
       "matches": ["<all_urls>"]
     }
@@ -49,6 +50,6 @@
   ],
   
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' http://localhost:5000"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; img-src 'self' http://localhost:5000"
   }
 }

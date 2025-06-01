@@ -4,20 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Edit Mode</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- <script src="html2canvas.min.js"></script> -->
   <link rel="stylesheet" href="edit.css" />
 </head>
 <body>
   <div id="toolbar">
-    <img src="edit-icons/pen.png" alt="Pen" id="penTool" title="Pen">
-    <!-- <img src="icons/text.png" alt="Text" id="textTool" title="Text">
-    <img src="icons/bucket.png" alt="Bucket" id="bucketTool" title="Bucket"> -->
-    <img src="edit-icons/eraser.png"  alt="Eraser" id="eraserTool" title="Eraser">
-    <img src="edit-icons/download.png"  alt="Save" id="saveTool" title="Save">
+    <img src="edit-icons/pen.png" class="tool" alt="Pen" id="penTool" title="Pen">
+    <img src="icons/text-black.png" class="tool" alt="Text" id="textTool" title="Text">
+    <img src="edit-icons/highlighter.png" class="tool" alt="Bucket" id="highlighterTool" title="Bucket">
+    <img src="edit-icons/eraser.png" class="tool" alt="Eraser" id="eraserTool" title="Eraser">
+    <img src="edit-icons/save.png" class="tool" alt="Save" id="saveTool" title="Save">
     <!-- Add more tool icons here -->
   </div>
 
-  <canvas id="annotationCanvas"></canvas>
+  
+
+  <div class="annotation-text" contenteditable="true">User note</div>
+
+  
+  <!-- <canvas id="annotationContainer"></canvas> -->
+
+  <!-- Add this BEFORE your script -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> -->
+
 
   <script src="edit.js"></script>
-</body>
 </html>

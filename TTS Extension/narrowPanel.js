@@ -69,9 +69,40 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-  // Notes button functionality
-  notesBtn.addEventListener('click', () => {
-    // Implement logic to open notes popup
-    console.log('Notes button clicked');
-  });
+  // Add this at the top with other variables
+let notesWindowId = null;
+let popupCooldown = false;
+
+// Modified notes button functionality
+notesBtn.addEventListener('click', () => {
+    // Prevent multiple popups
+    if (popupCooldown) return;
+    popupCooldown = true;
+    
+    // Create the popup window
+    chrome.windows.create({
+        url: chrome.runtime.getURL("taking-notes/taking-notes.html"),
+        type: "popup",
+        width: 800,
+        height: 600,
+        left: Math.round(screen.width / 2 - 400), // Center horizontally
+        top: Math.round(screen.height / 2 - 300)  // Center vertically
+    }, (window) => {
+        if (window) {
+            notesWindowId = window.id;
+            console.log("Notes popup opened with ID:", notesWindowId);
+
+            // Listen for window close to reset cooldown
+            const onWindowRemoved = (windowId) => {
+                if (windowId === notesWindowId) {
+                    popupCooldown = false;
+                    notesWindowId = null;
+                    chrome.windows.onRemoved.removeListener(onWindowRemoved);
+                    console.log("Notes popup closed");
+                }
+            };
+            chrome.windows.onRemoved.addListener(onWindowRemoved);
+        }
+    });
+});
 });
