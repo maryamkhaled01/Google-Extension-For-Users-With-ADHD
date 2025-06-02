@@ -52,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Edit button functionality
   editBtn.addEventListener("click", () => {
+
+    
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   const url = tabs[0].url;
   if (!url.startsWith('http') && !url.startsWith('https')) {

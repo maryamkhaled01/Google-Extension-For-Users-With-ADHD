@@ -88,7 +88,7 @@ h1 {
 button {
     font-size: 0.9rem;
     font-weight: 500;
-    background-color: #4dabf7;
+    background-color: #10B981;
     color: white;
     border: none;
     padding: 10px 10px;
@@ -101,7 +101,7 @@ button {
 }
 
 button:hover {
-    background-color: #2980B9;
+    background-color: #067b54;
 }
 
 /* Responsive adjustments */

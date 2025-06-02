@@ -60,8 +60,28 @@ body {
   transition: background-color 0.2s ease;
 }
 
-.icon-btn:hover{
-  background-color: #d3dbe4;
+#summarize:hover{
+  background-color: #9decc344;
+}
+
+#edit:hover {
+  background-color: rgba(235, 199, 134, 0.218);
+}
+
+#take-notes:hover{
+  background-color: rgba(233, 188, 195, 0.314);
+}
+
+.icon-btn .hover{
+  display: none;
+}
+
+.icon-btn:hover .default{
+  display: none;
+}
+
+.icon-btn:hover .hover{
+  display: inline;
 }
 
 

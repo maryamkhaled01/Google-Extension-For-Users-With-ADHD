@@ -42,19 +42,23 @@
   toolbar.appendChild(makeIcon("eraserTool", "eraser.png", "Eraser"));
   toolbar.appendChild(makeIcon("saveTool", "save.png", "Save"));
   toolbar.appendChild(makeIcon("textTool", "text.png", "Text"));
-  toolbar.appendChild(makeIcon("undoTool","undo.png","Undo"))
+  toolbar.appendChild(makeIcon("undoTool","undo.png","Undo"));
+  toolbar.appendChild(makeIcon("clearTool","trash-bin.png","Clear"));
+  toolbar.appendChild(makeIcon("exitTool","button.png","Exit"));
+  
+
   // Add exit button
-  const exitButton = document.createElement("button");
-  exitButton.textContent = "Exit";
-  exitButton.id = "exitButton";
-  toolbar.appendChild(exitButton);
+  // const exitButton = document.createElement("button");
+  // exitButton.textContent = "Exit";
+  // exitButton.id = "exitButton";
+  // toolbar.appendChild(exitButton);
 
 
   // Add clear button
-  const clearButton = document.createElement("button");
-  clearButton.textContent = "Clear";
-  clearButton.id = "clearButton"
-  toolbar.appendChild(clearButton);
+  // const clearButton = document.createElement("button");
+  // clearButton.textContent = "Clear";
+  // clearButton.id = "clearButton"
+  // toolbar.appendChild(clearButton);
 
   document.body.appendChild(toolbar);
 
@@ -262,7 +266,9 @@ function saveAsHTML() {
 
 
 // document.getElementById('saveTool').addEventListener('click', saveAnnotatedPage);
-  document.getElementById("exitButton").onclick = () => {
+  document.getElementById("exitTool").onclick = () => {
+    tool = "exit";
+    updateToolStyles(exitTool);
     if(isEditMode){
       svgOverlay.style.pointerEvents = "none";
       disableEditMode();
@@ -273,8 +279,9 @@ function saveAsHTML() {
   } 
 
 
-  document.getElementById("clearButton").onclick =() => {
-   
+  document.getElementById("clearTool").onclick =() => {
+    tool = "clear";
+   updateToolStyles(clearTool);
     paths.forEach(path => {
       if (path.parentNode) {
         path.parentNode.removeChild(path);
