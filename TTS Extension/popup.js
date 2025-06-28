@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             left: Math.floor(screen.width - 550), // Optional: keeps right-aligned
             top: 100 // Optional: keeps near top
         });
+        
     });
     // ===== END OF RESIZE CODE =====
 
@@ -99,4 +100,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             showAnswerButton.classList.add("hidden");
         }
     });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "playAudio" && message.audioData) {
+    const audio = new Audio(message.audioData);
+    audio.play()
+      .then(() => {
+        console.log("✅ Audio played successfully in popup.");
+        sendResponse({ success: true });
+      })
+      .catch(err => {
+        console.error("❌ Audio playback failed:", err);
+        sendResponse({ success: false, error: err.message });
+      });
+
+    // This line should be outside .then() to prevent message channel errors
+    return true;
+  }
+});
+
 });

@@ -298,58 +298,85 @@ async function speakSavedText() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/// gaze track
+/// popup
 
-let popupCooldown = false;
 let popupWindowId = null;
+let popupInProgress = false;
 
 function triggerPopupOnce() {
-  if (popupCooldown) {
-    // Already showing popup or in cooldown, do nothing
-    return;
+  if (popupWindowId !== null) {
+    console.log("⚠️ Existing popup detected. Closing it before creating a new one.");
+
+    chrome.windows.remove(popupWindowId, () => {
+      if (chrome.runtime.lastError) {
+        console.warn("❌ Failed to close popup:", chrome.runtime.lastError.message);
+      } else {
+        console.log("✅ Previous popup closed.");
+      }
+
+      popupWindowId = null;
+      popupCooldown = false;
+
+      // Now try again AFTER the old popup is closed
+      triggerPopupOnce();
+    });
+
+    return; // ⛔ Don't continue this call
   }
 
+  // ✅ Now safe to create a new popup
   popupCooldown = true;
 
   chrome.windows.create({
-    url: "popup.html", // Changed URL to "adjustCameraPopup.html" per your usage
+    url: "popup.html",
     type: "popup",
     width: 800,
     height: 600
   }, (window) => {
-    if (window) {
-      popupWindowId = window.id;
-      console.log("popup opened, window ID:", popupWindowId);
+    if (!window) return;
 
-      // Listen for popup window close to reset cooldown
-      chrome.windows.onRemoved.addListener(function onRemoved(windowId) {
-        if (windowId === popupWindowId) {
-          popupCooldown = false;
-          popupWindowId = null;
-          console.log("popup closed, cooldown reset.");
+    popupWindowId = window.id;
+    console.log("🆕 New popup created, ID:", popupWindowId);
 
-          // Remove this listener after firing
-          chrome.windows.onRemoved.removeListener(onRemoved);
-        }
-      });
-    }
+    // Track closure
+    chrome.windows.onRemoved.addListener(function onRemoved(id) {
+      if (id === popupWindowId) {
+        popupCooldown = false;
+        popupWindowId = null;
+        console.log("🧹 Popup closed, cooldown reset.");
+        chrome.windows.onRemoved.removeListener(onRemoved);
+      }
+    });
   });
+
+  // Failsafe timeout (just in case)
+setTimeout(() => {
+  if (popupWindowId !== null) {
+    chrome.windows.remove(popupWindowId, () => {
+      console.log("🕓 Timeout: closed lingering popup.");
+      popupWindowId = null;
+    });
+  }
+}, 30000); // 30 sec
+
+
 
   chrome.tts.speak("fun time", {
     rate: 1.0,
     pitch: 1.0,
     volume: 1.0
   });
-
-  // Optional fallback: reset cooldown after 2 minutes in case user never closes popup
-  setTimeout(() => {
-    if (popupCooldown) {
-      popupCooldown = false;
-      popupWindowId = null;
-      console.log("📷 Popup cooldown reset by timeout.");
-    }
-  }, 2 * 60 * 1000); // 2 minutes
 }
+
+chrome.runtime.onStartup.addListener(() => {
+  if (popupWindowId !== null) {
+    chrome.windows.remove(popupWindowId).catch(() => {});
+    popupWindowId = null;
+    console.log("🧹 Cleaned up popup on startup");
+  }
+});
+
+
 
 
 
@@ -546,6 +573,11 @@ chrome.runtime.onStartup.addListener(() => {
         console.log("🧹 Cleared camera adjustment flag on startup");
     });
 });
+
+
+
+
+
 // Check gaze every second
 // setInterval(checkGaze, 1 * 60 * 1000);
 
