@@ -91,26 +91,41 @@ chrome.action.onClicked.addListener(() => {
 //         });
 //     }
 // });
+
+////////////////////// Text-to-Speech (TTS) Functionality //////////////////////
+let lastUsableTabId = null;
+
+// In content.js on load
+chrome.runtime.sendMessage({ action: "tts_ready" });
+
+// In background.js
+chrome.runtime.onMessage.addListener((msg, sender) => {
+  if (msg.action === "tts_ready") {
+    lastUsableTabId = sender.tab.id;
+    console.log("✅ TTS content script ready on tab", sender.tab.id);
+  }
+});
+
+
 const ttsCache = {};
 
 async function speakText(text) {
     try {
         console.log("💬 Initiating TTS for text:", text);
 
-        // Check if the text is already cached
+        //Check if the text is already cached
         if (ttsCache[text]) {
             console.log("✅ Using cached audio for text:", text);
-            await playAudio(ttsCache[text]);
-            return;
+            return playBase64Audio(ttsCache[text]);
         }
 
         console.log("⏳ Fetching new audio from server for text:", text);
 
         // Fetch the audio file from the server
-        const response = await fetch("http://localhost:5000/speak", {
+        const response = await fetch("https://ttsserver-production.up.railway.app/speak", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({text})
         });
 
         if (!response.ok) {
@@ -120,22 +135,24 @@ async function speakText(text) {
         const blob = await response.blob();
         console.log("✅ Successfully generated .wav file for text:", text);
 
-        // Convert the Blob to a base64-encoded string
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = async () => {
-            const base64Audio = reader.result;
+        // Cache the audio blob
+        const arrayBuffer = await blob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
 
-            // Cache the base64 audio data
-            ttsCache[text] = base64Audio;
-            console.log("💾 Cached audio for text:", text);
+        let binary = "";
+        for (let i = 0; i < uint8Array.length; i++) {
+          binary += String.fromCharCode(uint8Array[i]);
+        }
+        const base64Audio = btoa(binary);
 
-            // Play the audio
-            await playAudio(base64Audio);
-        };
-    } catch (error) {
+        ttsCache[text] = base64Audio;
+        console.log("💾 Audio cached for:", text);
+
+        // Play the audio
+        console.log("🎵 Audio playback initiated for text:", text);
+        return playBase64Audio(base64Audio);      
+  } catch (error) {
         console.error("❌ Error during TTS:", error);
-
         // Fallback to Chrome TTS if the server fails
         console.log("⚠️ Falling back to Chrome TTS for text:", text);
         chrome.tts.speak(text, {
@@ -143,7 +160,24 @@ async function speakText(text) {
             pitch: 2.0,
             volume: 1.0
         });
+  }
+}
+
+function playBase64Audio(base64Audio) {
+
+// Later when sending audio
+if (lastUsableTabId) {
+  chrome.tabs.sendMessage(lastUsableTabId, {
+    action: "playAudioFromBase64",
+    audio: base64Audio
+  }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.warn("❌ Message send failed:", chrome.runtime.lastError.message);
     }
+  });
+} else {
+  console.warn("⚠️ No usable tab to send audio to.");
+}
 }
 
 // Function to play audio based on the context
@@ -173,6 +207,8 @@ async function playAudio(base64Audio) {
         }, 500); // Wait for the popup to load
     });
 }
+//////////////  tts end   //////////////////////
+
 
 // Listen for messages from summarization script and store the summary
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -287,14 +323,14 @@ async function speakSavedText() {
         message = `Hey, wake up! `;    
     }
     
-    // console.log("📢 Preparing to speak saved text:", message);
-    // await speakText(message); // Use server-based TTS
+    console.log("📢 Preparing to speak saved text:", message);
+    await speakText(message); // Use server-based TTS
 
-    chrome.tts.speak(message, {
-        rate: 1.0,
-        pitch: 1.0,
-        volume: 1.0
-    });
+    // chrome.tts.speak(message, {
+    //     rate: 1.0,
+    //     pitch: 1.0,
+    //     volume: 1.0
+    // });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -303,7 +339,7 @@ async function speakSavedText() {
 let popupWindowId = null;
 let popupInProgress = false;
 
-function triggerPopupOnce() {
+async function triggerPopupOnce() {
   if (popupWindowId !== null) {
     console.log("⚠️ Existing popup detected. Closing it before creating a new one.");
 
@@ -326,6 +362,8 @@ function triggerPopupOnce() {
 
   // ✅ Now safe to create a new popup
   popupCooldown = true;
+
+  await speakText("Hey, It's time for some fun!");
 
   chrome.windows.create({
     url: "popup.html",
@@ -361,11 +399,11 @@ setTimeout(() => {
 
 
 
-  chrome.tts.speak("fun time", {
-    rate: 1.0,
-    pitch: 1.0,
-    volume: 1.0
-  });
+  // chrome.tts.speak("fun time", {
+  //   rate: 1.0,
+  //   pitch: 1.0,
+  //   volume: 1.0
+  // });
 }
 
 chrome.runtime.onStartup.addListener(() => {
@@ -497,7 +535,8 @@ async function checkGaze() {
         if (gazeRetries >= MAX_GAZE_RETRIES) {
             console.warn("❌ Too many gaze tracking errors, showing camera adjustment popup.");
             notifyUser("Please readjust the camera!");
-            chrome.tts.speak("Please readjust the camera!");
+            await speakText("Please readjust the camera!"); // Use server-based TTS
+            //chrome.tts.speak("Please readjust the camera!");
 
             if (cameraWindowId !== null) {
             try {
@@ -523,7 +562,7 @@ async function checkGaze() {
     
             gazeRetries = 0; // Reset retries after showing the popup
         }else{
-            console.log("❌ User is not focused!");
+            console.log("❌ User is not focused!",data);
             const randomAction = Math.random() < 0.5 ? "popup" : "tts";
             
             if (randomAction === "popup") {

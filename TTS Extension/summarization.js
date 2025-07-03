@@ -20,6 +20,38 @@ function safeSendMessage(message) {
 }
 
 
+///////// speech listener ////////
+chrome.runtime.sendMessage({ action: "tts_ready" });
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "playAudioFromBase64") {
+    console.log("🔊 Received base64 audio message");
+
+    const audioBlob = new Blob(
+      [Uint8Array.from(atob(message.audio), c => c.charCodeAt(0))],
+      { type: "audio/wav" }
+    );
+
+    const audioUrl = URL.createObjectURL(audioBlob);
+    console.log("🎧 Audio URL created:", audioUrl);
+
+    const audio = new Audio(audioUrl);
+
+    audio.onloadedmetadata = () => {
+      console.log("✅ Audio metadata loaded, duration:", audio.duration);
+    };
+
+    audio.onplay = () => console.log("▶️ Audio started playing");
+    audio.onended = () => console.log("✅ Playback finished");
+    audio.onerror = (e) => console.error("❌ Audio playback error", e);
+
+    audio.play().catch((err) => {
+      console.error("⚠️ Playback failed:", err);
+    });
+  }
+});
+//////////  end speech   //////
+
 
 console.log("ContentLoaded: summarization.js is active");
 
