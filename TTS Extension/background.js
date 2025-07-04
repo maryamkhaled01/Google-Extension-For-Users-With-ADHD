@@ -74,23 +74,8 @@ chrome.action.onClicked.addListener(() => {
 });
 
 
-// chrome.idle.setDetectionInterval(15);  // 15 seconds
 
-// chrome.idle.onStateChanged.addListener((state) => {
-//     if (state === "idle" || state === "locked") {
-//         chrome.windows.create({
-//             url: "popup.html",
-//             type: "popup",
-//             width: 800,
-//             height: 600
-//         });
-//         chrome.tts.speak("fun time", {
-//             rate: 1.0,
-//             pitch: 1.0,
-//             volume: 1.0
-//         });
-//     }
-// });
+
 
 ////////////////////// Text-to-Speech (TTS) Functionality //////////////////////
 let lastUsableTabId = null;
@@ -619,6 +604,5 @@ chrome.runtime.onStartup.addListener(() => {
 
 // Check gaze every second
 // setInterval(checkGaze, 1 * 60 * 1000);
-
 
 
