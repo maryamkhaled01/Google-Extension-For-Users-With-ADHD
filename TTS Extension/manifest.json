@@ -18,15 +18,17 @@
     "downloads"
   ],
   "host_permissions": [
-    "https://web-production-020c8.up.railway.app/",
+    "https://gaze-tracking-server-production.up.railway.app/",
     "http://localhost:5000/",
+    "https://summary-server-production.up.railway.app/",
     "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_icon": "icons/extension_icon.png"
+    "default_icon": "icons/extension_icon.png",
+    "default_title": "Focus Booster & TTS"
   },
   "side_panel": {
     "default_title": "Side Panel",
@@ -34,9 +36,16 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["datasets/*.csv", 
-      "icons/*.png","lib/html2canvas.min.js","taking-notes/taking-notes.html",
-      "adjustCameraPopup.html","offscreen.html","edit/edit.js","edit/edit.css", "edit/edit-icons/*.png"],
+      "resources": ["edit/css/*.css",
+        "edit/js/*.js",
+        "edit/edit-icons/*.png",
+        "edit/libs/*.js",
+        "edit/*.html",
+        "taking-notes/taking-notes.html",
+        "adjustCameraPopup.html",
+        "offscreen.html",
+        "icons/*.png",
+        "edit/*"],
       "matches": ["<all_urls>"]
     }
   ],
@@ -44,11 +53,13 @@
     {
       "matches": ["<all_urls>"],
       "js": ["summarization.js"],
+      "css":["edit/css/main.min.css"],
       "run_at": "document_idle"
       
     }
   ],
-  
+  "options_page": "edit/options.html",
+  "update_url": "https://clients2.google.com/service/update2/crx",
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; img-src 'self' http://localhost:5000"
   }
