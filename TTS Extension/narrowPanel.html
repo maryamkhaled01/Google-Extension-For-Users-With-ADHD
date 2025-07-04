@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="CSS/narrowPanel.css" />
   <script src="html2canvas.min.js"></script>
 
@@ -15,7 +16,7 @@
     </header>
     <div class="menu-bar" id="container">
         <div class="icon-container" id="icon-container" >
-            <button id="summarize" class="icon-btn">
+           <button id="summarize" class="icon-btn">
                 <img src="icons/summarize-white.png" alt="Summary Icon" class="icon default">
                 <img src="icons/summarize-hover.png" alt="Summary Icon" class="icon hover">
                 <span> Summarize </span>
@@ -31,7 +32,10 @@
                 <img src="icons/notes-hover.png" alt="Notes Icon" class="icon hover">
                 <span> Take Notes </span>
             </button>
-        </div>
+
+            
+          </div>
+          <div id="saved-notes-list" class="notes-list-container"></div>
         <iframe id="summaryPanel" src="summary/summaryPanel.html" style="display: none;"></iframe>
     </div>
 
