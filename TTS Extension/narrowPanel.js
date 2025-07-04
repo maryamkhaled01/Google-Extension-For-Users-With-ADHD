@@ -4,107 +4,150 @@ document.addEventListener('DOMContentLoaded', () => {
   const summaryBtn = document.getElementById('summarize');
   const editBtn = document.getElementById('edit');
   const notesBtn = document.getElementById('take-notes');
-  const summaryPanel = document.getElementById('summaryPanel')
-  const iconContainer = document.getElementById('icon-container')
-  const container = document.getElementById('container')
-  // Toggle panel expansion
+  const summaryPanel = document.getElementById('summaryPanel');
+  const iconContainer = document.getElementById('icon-container');
+  const container = document.getElementById('container');
+  const notesListContainer = document.getElementById('saved-notes-list');
 
+  let notesWindowId = null;
+  let popupCooldown = false;
 
-  // toggleButton.addEventListener('click', () => {
-  //   narrowPanel.classList.toggle('expanded');
-  // });
-
-
-
-
-
-  if (!iconContainer || !summaryPanel) {
-    console.error("❌ One or more elements are missing.");
+  // Validate required elements
+  if (!iconContainer || !summaryPanel || !notesBtn || !notesListContainer) {
+    console.error("❌ Missing one or more required DOM elements.");
     return;
   }
 
+  // Show summarization panel
   summaryBtn.addEventListener("click", () => {
     iconContainer.style.display = "none";
     summaryPanel.style.display = "flex";
     container.style.display = "flex";
+    notesListContainer.style.display = "none";
+    chrome.runtime.sendMessage({ method: "summarize" });
   });
 
-
-//  // Summary button functionality
-//   summaryBtn.addEventListener('click', () => {
-//     // Implement logic to display the summary panel
-//     console.log('Summary button clicked');
-//     // const isVisible = summaryPanel.style.display === "block";
-//     // summaryPanel.style.display = isVisible ? "none" : "block";
-
-//     document.getElementById("icon-container").style.display = "none";
-//     document.getElementById("summaryPanel").style.display = "block";
-//   });
-
+  // Restore toolbar when message is received
   window.addEventListener("message", (event) => {
-  if (event.data.action === "showToolbar") {
-    iconContainer.style.display = "flex";
-    summaryPanel.style.display = "none";
-    container.style.display = "block";
-  }
-});
+    if (event.data.action === "showToolbar") {
+      iconContainer.style.display = "block";
+      summaryPanel.style.display = "none";
+      container.style.display = "block";
+      notesListContainer.style.display = "flex";
+    }
+  });
 
-
-  // Edit button functionality
+  // Activate annotation editor
   editBtn.addEventListener("click", () => {
+    console.log("✏️[panel] Edit button clicked — sending message");
+    chrome.runtime.sendMessage({ method: "activate_editor" });
+  });
 
-    
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  const url = tabs[0].url;
-  if (!url.startsWith('http') && !url.startsWith('https')) {
-    alert('Drawing tools cannot be used on this page.');
+  // Display saved notes in the side panel
+ function displaySavedNotes() {
+  const container = document.getElementById("saved-notes-list");
+  container.innerHTML = "";
+
+  const notes = JSON.parse(localStorage.getItem("userNotesList") || "[]");
+
+  if (notes.length === 0) {
+    container.innerHTML = "<p style='color: #666;'>No saved notes yet.</p>";
     return;
   }
 
-  // Inject only if not already injected
-  chrome.scripting.executeScript({
-    target: { tabId: tabs[0].id },
-    files: ["edit/edit.js"]
+  notes.forEach((note, index) => {
+    const div = document.createElement("div");
+    div.className = "note-preview bounce-on-hover";
+    div.innerHTML = `
+      <div class="note-header">
+        <strong class="note-title" style="cursor:pointer">${note.title || `Note ${index + 1}`}</strong>
+        <div class="note-actions">
+            <button class="rename-note note" data-index="${index}"><i class="fa-solid fa-pen"></i></button>
+            <button class="delete-note note" data-index="${index}"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="note-content" style="display:none; white-space:pre-wrap;">${note.content}</div>
+    `;
+    container.appendChild(div);
   });
-});
 
-});
+  container.querySelectorAll(".note-title").forEach((titleEl, i) => {
+    titleEl.addEventListener("click", () => {
+      const content = titleEl.parentElement.nextElementSibling;
+      content.style.display = content.style.display === "none" ? "block" : "none";
+    });
+  });
+
+  container.querySelectorAll(".delete-note").forEach(button => {
+    button.addEventListener("click", (e) => {
+      const buttonEl = e.target.closest("button");
+      const idx = parseInt(buttonEl.dataset.index);
+      notes.splice(idx, 1);
+      localStorage.setItem("userNotesList", JSON.stringify(notes));
+      displaySavedNotes();
+    });
+  });
+
+  container.querySelectorAll(".rename-note").forEach(button => {
+    button.addEventListener("click", (e) => {
+      const buttonEl = e.target.closest("button");
+      const idx = parseInt(buttonEl.dataset.index);
+      const newTitle = prompt("Enter new note title:", notes[idx].title || `Note ${idx + 1}`);
+      if (newTitle !== null) {
+        notes[idx].title = newTitle;
+        localStorage.setItem("userNotesList", JSON.stringify(notes));
+        displaySavedNotes();
+      }
+    });
+  });
+}
 
 
-  // Add this at the top with other variables
-let notesWindowId = null;
-let popupCooldown = false;
+function generateTitleFromContent(htmlContent) {
+  const plainText = htmlContent
+    .replace(/<[^>]*>/g, '')  // Remove HTML tags
+    .replace(/\s+/g, ' ')     // Collapse whitespace
+    .trim();
 
-// Modified notes button functionality
-notesBtn.addEventListener('click', () => {
-    // Prevent multiple popups
+  if (!plainText) return "Untitled Note";
+
+  return plainText.length > 30 ? plainText.slice(0, 30) + "..." : plainText;
+}
+
+
+
+  // Handle Notes Button
+  notesBtn.addEventListener('click', () => {
     if (popupCooldown) return;
     popupCooldown = true;
-    
-    // Create the popup window
-    chrome.windows.create({
-        url: chrome.runtime.getURL("taking-notes/taking-notes.html"),
-        type: "popup",
-        width: 800,
-        height: 600,
-        left: Math.round(screen.width / 2 - 400), // Center horizontally
-        top: Math.round(screen.height / 2 - 300)  // Center vertically
-    }, (window) => {
-        if (window) {
-            notesWindowId = window.id;
-            console.log("Notes popup opened with ID:", notesWindowId);
 
-            // Listen for window close to reset cooldown
-            const onWindowRemoved = (windowId) => {
-                if (windowId === notesWindowId) {
-                    popupCooldown = false;
-                    notesWindowId = null;
-                    chrome.windows.onRemoved.removeListener(onWindowRemoved);
-                    console.log("Notes popup closed");
-                }
-            };
-            chrome.windows.onRemoved.addListener(onWindowRemoved);
-        }
+    chrome.windows.create({
+      url: chrome.runtime.getURL("taking-notes/taking-notes.html"),
+      type: "popup",
+      width: 360,
+      height: 380,
+      left: Math.round(screen.width / 2 - 180),
+      top: Math.round(screen.height / 2 - 210)
+    }, (window) => {
+      if (window) {
+        notesWindowId = window.id;
+        console.log("Notes popup opened with ID:", notesWindowId);
+
+        // Reset when closed
+        const onWindowRemoved = (windowId) => {
+          if (windowId === notesWindowId) {
+            popupCooldown = false;
+            notesWindowId = null;
+            chrome.windows.onRemoved.removeListener(onWindowRemoved);
+            console.log("Notes popup closed");
+            displaySavedNotes(); // Refresh notes list after closing popup
+          }
+        };
+        chrome.windows.onRemoved.addListener(onWindowRemoved);
+      }
     });
-});
+  });
+
+  // Display saved notes when panel loads
+  displaySavedNotes();
 });
