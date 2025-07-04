@@ -1,39 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>taking notes</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="taking-notes.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sticky Note</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="taking-notes.css" />
 </head>
 <body>
+  <div class="sticky-note theme-yellow">
+  <div class="note-toolbar">
+    <button class="format-btn" data-command="bold" title="Bold"><i class="fas fa-bold"></i></button>
+    <button class="format-btn" data-command="italic" title="Italic"><i class="fas fa-italic"></i></button>
+    <button class="format-btn" data-command="underline" title="Underline"><i class="fas fa-underline"></i></button>
+    <select id="fontSize" title="Font Size">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3" selected>3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+    </select>
+     <button id="alignmentToggleBtn" class="format-btn" title="Align text">
+        <i id="alignLeftIcon" class="fa-solid fa-align-left"></i>
+        <i id="alignCenterIcon" class="fa-solid fa-align-center" style="display:none;"></i>
+        <i id="alignRightIcon" class="fa-solid fa-align-right" style="display:none;"></i>
+      </button>
+  </div>
 
-    <!-- <div class="container"> -->
-        <div class="options">
-            <button id="bold" class="option-button format">
-                <i class="fa-solid fa-bold"></i>
-            </button>
-            <button id="italic" class="option-button format">
-                <i class="fa-solid fa-italic"></i>
-            </button>
-            <button id="underline" class="option-button format">
-                <i class="fa-solid fa-underline"></i>
-            </button>
-            <label for="fontSize">
-                <i class="fa-solid fa-font"></i>
-            </label>
-            <select id="fontSize" class="adv-option-button">
-            </select>
-        </div>
-        <div id="text-input" contenteditable="true"></div>
+  <div id="text-input" contenteditable="true" data-placeholder="Take a note..."></div>
+  <div class="note-message" id="note-message"></div>
 
-    <!-- </div> -->
+  <div class="note-actions">
+    <button id="save-btn" title="Save"> Save</button>
+  </div>
+</div>
 
-    <script src="taking-notes.js"></script>
-    
+
+  <script src="taking-notes.js"></script>
 </body>
 </html>
