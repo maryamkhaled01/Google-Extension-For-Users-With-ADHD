@@ -74,22 +74,12 @@ cd server
 pip install -r requirements.txt
 python app.py
 
----
 
-### [live demo] (https://drive.google.com/file/d/1ZT9dwi_dJ1VvWW3et2r1aRMyR7Ntbtvx/view?usp=sharing)
+✅ FastSpeech2 must be set up and ready to infer audio from text.
 
+✅ Flask runs a /speak endpoint that returns WAV audio as a stream (in-memory).
 
-<img width="403" height="368" alt="Screenshot 2025-07-27 133611" src="https://github.com/user-attachments/assets/3836d171-d0cd-4b37-8caf-4ee1443e837e" />
-<img width="1266" height="794" alt="Screenshot 2025-07-27 132919" src="https://github.com/user-attachments/assets/37727e09-8310-4bfa-9f68-0c1cbc4f7c01" />
-<img width="304" height="649" alt="Screenshot 2025-07-27 133507" src="https://github.com/user-attachments/assets/95844623-eed2-47e8-bf2c-f1b72d078287" />
-<img width="1109" height="602" alt="Screenshot 2025-07-27 133530" src="https://github.com/user-attachments/assets/f43483e9-2b6c-4669-9ced-daf831eda5da" />
-
-
-FastSpeech2 must be set up and ready to infer audio from text.
-
-Flask runs a /speak endpoint that returns WAV audio as a stream (in-memory).
-
-GazeTracking runs locally and processes camera frames sent from the extension.
+✅ GazeTracking runs locally and processes camera frames sent from the extension.
 
 🧩 Chrome Extension
 Open chrome://extensions in your browser
@@ -100,11 +90,15 @@ Click Load Unpacked
 
 Select the extension/ folder in the repo
 
+🎥 Live Demo
+▶️ Watch Demo on Google Drive
+
+📸 Screenshots
+<p float="left"> <img width="403" alt="Calibration" src="https://github.com/user-attachments/assets/3836d171-d0cd-4b37-8caf-4ee1443e837e" /> <img width="1266" alt="Gaze Detection" src="https://github.com/user-attachments/assets/37727e09-8310-4bfa-9f68-0c1cbc4f7c01" /> <img width="304" alt="Re-engagement Popup" src="https://github.com/user-attachments/assets/95844623-eed2-47e8-bf2c-f1b72d078287" /> <img width="1109" alt="Tools Tab" src="https://github.com/user-attachments/assets/f43483e9-2b6c-4669-9ced-daf831eda5da" /> </p>
+
+👩‍💻 Author
+Salma Ahmed – Full-stack developer | AI enthusiast
+GitHub • LinkedIn
+
 📜 License
 This project was developed as a graduation project. Educational and research use is encouraged. Contributions welcome with attribution.
-
-yaml
-Copy
-Edit
-
-
