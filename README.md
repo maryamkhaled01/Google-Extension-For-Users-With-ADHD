@@ -100,8 +100,6 @@
 
 ---
 
----
-
 ### 👩‍💻 Contributors
 
 | Name            | GitHub                                     |
