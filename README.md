@@ -74,9 +74,9 @@ cd server
 pip install -r requirements.txt
 python app.py
 
+---
 
-
-## [live demo] (https://drive.google.com/file/d/1ZT9dwi_dJ1VvWW3et2r1aRMyR7Ntbtvx/view?usp=sharing)
+### [live demo] (https://drive.google.com/file/d/1ZT9dwi_dJ1VvWW3et2r1aRMyR7Ntbtvx/view?usp=sharing)
 
 
 <img width="403" height="368" alt="Screenshot 2025-07-27 133611" src="https://github.com/user-attachments/assets/3836d171-d0cd-4b37-8caf-4ee1443e837e" />
