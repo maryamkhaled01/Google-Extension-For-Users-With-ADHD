@@ -100,10 +100,18 @@
 
 ---
 
-### 👩‍💻 Author
+---
 
-**Salma Ahmed** – Full-stack Developer & AI Enthusiast  
-[GitHub](https://github.com/salmaaa9) • [LinkedIn](https://linkedin.com/in/salma-ahmed-593277270)
+### 👩‍💻 Contributors
+
+| Name            | GitHub                                     |
+|-----------------|--------------------------------------------|
+| Salma Ahmed     | [@salmaaa9](https://github.com/salmaaa9)   |
+| [Teammate 1]    | [@username1](https://github.com/username1) |
+| [Teammate 2]    | [@username2](https://github.com/username2) |
+| [Teammate 3]    | [@username3](https://github.com/username3) |
+
+
 
 ---
 
