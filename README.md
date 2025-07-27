@@ -74,3 +74,48 @@ cd server
 pip install -r requirements.txt
 python app.py
 
+---
+
+### ✅ Backend Checklist
+
+- ✔️ **FastSpeech2** must be set up and ready to infer audio from text  
+- ✔️ **Flask** runs a `/speak` endpoint that returns WAV audio as a stream (in-memory)  
+- ✔️ **GazeTracking** runs locally and processes camera frames sent from the extension  
+
+---
+
+### 🧩 Chrome Extension Setup
+
+1. Open `chrome://extensions` in your browser  
+2. Enable **Developer Mode** (top right)  
+3. Click **Load Unpacked**  
+4. Select the `extension/` folder from the repo  
+
+---
+
+### 🎥 Live Demo  
+▶️ [Watch Demo on Google Drive](https://drive.google.com/file/d/1ZT9dwi_dJ1VvWW3et2r1aRMyR7Ntbtvx/view?usp=sharing)
+
+---
+
+### 📸 Screenshots
+
+<p float="left">
+  <img width="403" alt="Calibration" src="https://github.com/user-attachments/assets/3836d171-d0cd-4b37-8caf-4ee1443e837e" />
+  <img width="1266" alt="Gaze Detection" src="https://github.com/user-attachments/assets/37727e09-8310-4bfa-9f68-0c1cbc4f7c01" />
+  <img width="304" alt="Re-engagement Popup" src="https://github.com/user-attachments/assets/95844623-eed2-47e8-bf2c-f1b72d078287" />
+  <img width="1109" alt="Tools Tab" src="https://github.com/user-attachments/assets/f43483e9-2b6c-4669-9ced-daf831eda5da" />
+</p>
+
+---
+
+### 👩‍💻 Author
+
+**Salma Ahmed** – Full-stack Developer & AI Enthusiast  
+[GitHub](https://github.com/salmaaa9) • [LinkedIn](https://linkedin.com/in/salma-ahmed-593277270)
+
+---
+
+### 📜 License
+
+This project was developed as part of a graduation requirement. Educational and research use is encouraged. Contributions are welcome with attribution.
