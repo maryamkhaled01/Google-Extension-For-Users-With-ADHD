@@ -64,7 +64,16 @@
 5. **Tools Tab** always available → User can annotate or highlight live on the page
 
 ---
+## 🧑‍💻 Setup Instructions
 
+### 🔧 Backend (Flask + FastSpeech2)
+```bash
+git clone https://github.com/YOUR_USERNAME/focusflow-extension.git
+cd server
+pip install -r requirements.txt
+python app.py
+---
+---
 ---
 
 ### ✅ Backend Checklist
@@ -112,12 +121,4 @@
 This project was developed as part of a graduation requirement. Educational and research use is encouraged. Contributions are welcome with attribution.
 
 
-## 🧑‍💻 Setup Instructions
-
-### 🔧 Backend (Flask + FastSpeech2)
-```bash
-git clone https://github.com/YOUR_USERNAME/focusflow-extension.git
-cd server
-pip install -r requirements.txt
-python app.py
 
