@@ -106,8 +106,10 @@
 |-----------------|--------------------------------------------
 | Salma Ahmed     | [@salmaaa9](https://github.com/salmaaa9)   
 | Rowan Ahmed     | [@Rawan-AbdElmoneim](https://github.com/Rawan-AbdElmoneim) 
-| [Teammate 2]    | [@username2](https://github.com/username2) 
-| [Teammate 3]    | [@username3](https://github.com/username3) 
+| Mariam Khaled   | [@maryamkhaled01](https://github.com/maryamkhaled01) 
+| Reem Ahmed      | [@reemzzzz](https://github.com/reemzzzz) 
+| Nour Saeed      | [@Nour-Saeed01](https://github.com/Nour-Saeed01) 
+
 
 
 
